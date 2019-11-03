@@ -8,3 +8,4 @@ plotly
 cufflinks
 numpy
 ipywidgets
+pulp
