@@ -4,3 +4,7 @@ ipykernel>=5.0.1
 ipython>=7.0
 pandas-datadict
 pandas-fpl
+plotly
+cufflinks
+numpy
+ipywidgets
