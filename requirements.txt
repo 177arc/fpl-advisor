@@ -9,3 +9,4 @@ cufflinks
 numpy
 ipywidgets
 pulp
+sklearn
