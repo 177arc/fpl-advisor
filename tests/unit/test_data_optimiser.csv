@@ -1,0 +1,63 @@
+﻿Player ID,Name,Current Cost,Field Position,Expected Points Next GW,Expected Points Next 5 GWs,Expected Points GWs To Half,Expected Points GWs To End,News And Date,Team Short Name,Player Team ID,In Team?,Selected?,Point Factor,Fixture Point Consistency
+543,Whiteman,4,GK,0,0,0,0,,TOT,17,0,,0,
+128,Kelly,4.1,DEF,3.2,16,28.8,89.6,,CRY,7,1,,1,16
+132,Hennessey,4.4,GK,0,0,0,0,,CRY,7,0,,0,
+464,Brewster,4.4,FWD,0,0,0,0,,LIV,10,0,,0,
+126,Ward,4.5,DEF,4.6,23,41.4,128.8,,CRY,7,1,,1,23
+130,Wickham,4.5,FWD,0.4,2,3.6,11.2,Knock - 50% chance of playing (13 Sep 2019),CRY,7,0,,0,2
+339,Janssen,4.5,FWD,0,0,0,0,Joined Monterrey on a permanent deal on 23/7 (30 Jul 2019),TOT,17,0,,0,
+509,Parrott,4.5,FWD,0,0,0,0,,TOT,17,0,,0,
+526,Adrián,4.6,GK,3.2,16,28.8,89.6,,LIV,10,0,,0,16
+213,Bravo,4.8,GK,0,0,0,0,,MCI,11,0,,0,
+459,Zouma,4.8,DEF,0.4,2,3.6,11.2,,CHE,6,0,,0,2
+337,Walker-Peters,4.9,DEF,1,5,9,28,,TOT,17,0,,0,5
+350,Dier,4.9,MID,0,0,0,0,,TOT,17,0,,0,
+112,Caballero,4.9,GK,0,0,0,0,,CHE,6,0,,0,
+527,Nkoudou,5,MID,0.2,1,1.8,5.6,Joined Besiktas on a permanent deal on 22/8 (22 Aug 2019),TOT,17,0,,0,1
+506,James,5,DEF,0,0,0,0,Lack of match fitness - 50% chance of playing (12 Aug 2019),CHE,6,0,,0,
+468,Ayew,5.1,FWD,7.3,22,65.7,204.4,,CRY,7,1,,1,22
+188,Origi,5.3,FWD,3,15,27,84,Ankle injury - 50% chance of playing (14 Sep 2019),LIV,10,0,,0,15
+138,McArthur,5.3,MID,2.4,12,21.6,67.2,,CRY,7,0,,0,12
+330,Vertonghen,5.3,DEF,1.4,7,12.6,39.2,,TOT,17,0,,0,7
+186,Lovren,5.3,DEF,0,0,0,0,,LIV,10,0,,0,
+199,Wijnaldum,5.4,MID,2.8,14,25.2,78.4,,LIV,10,0,,0,14
+207,Stones,5.4,DEF,1.4,7,12.6,39.2,Muscle injury - Expected back 26 Oct (17 Sep 2019),MCI,11,0,,0,7
+185,Matip,5.5,DEF,4.2,21,37.8,117.6,Knock - 75% chance of playing (01 Oct 2019),LIV,10,1,1,1,21
+340,Lloris,5.5,GK,3.8,19,34.2,106.4,,TOT,17,1,,1,19
+331,Alderweireld,5.5,DEF,3.4,17,30.6,95.2,,TOT,17,1,1,1,17
+332,Rose,5.5,DEF,2,10,18,56,,TOT,17,0,,0,10
+107,Emerson,5.5,DEF,1,5,9,28,Hamstring injury - 50% chance of playing (08 Sep 2019),CHE,6,0,,0,5
+111,Kepa,5.5,GK,1.6,8,14.4,44.8,,CHE,6,0,,0,8
+432,Kovacic,5.5,MID,2.6,13,23.4,72.8,,CHE,6,1,1,1,13
+123,van Aanholt,5.6,DEF,4.8,24,43.2,134.4,,CRY,7,0,,0,24
+135,Townsend,5.8,MID,1.8,9,16.2,50.4,,CRY,7,0,,0,9
+129,Benteke,5.8,FWD,1.6,8,14.4,44.8,,CRY,7,0,,0,8
+189,Alisson,5.8,GK,0.2,1,1.8,5.6,Calf injury - Unknown return date (09 Aug 2019),LIV,10,0,,0,1
+196,Keita,5.8,MID,0,0,0,0,Muscle injury - 50% chance of playing (14 Aug 2019),LIV,10,0,,0,
+204,Mendy,5.9,DEF,0.2,1,1.8,5.6,,MCI,11,0,,0,1
+203,Walker,6,DEF,3.6,18,32.4,100.8,,MCI,11,0,,0,18
+212,Ederson,6.1,GK,5,25,45,140,,MCI,11,1,1,1,25
+103,Alonso,6.2,DEF,1.2,6,10.8,33.6,,CHE,6,0,,0,6
+202,Laporte,6.3,DEF,1.8,9,16.2,50.4,Knee injury - Expected back 01 Feb (31 Aug 2019),MCI,11,0,,0,9
+115,Loftus-Cheek,6.4,MID,0,0,0,0,Achilles injury - Unknown return date (25 Jun 2019),CHE,6,0,,0,
+183,van Dijk,6.5,DEF,4.6,23,41.4,128.8,,LIV,10,0,,0,23
+463,Mount,6.5,MID,6.6,33,59.4,184.8,,CHE,6,1,1,1,33
+461,Batshuayi,6.6,FWD,1.2,6,10.8,33.6,,CHE,6,0,,0,6
+110,Giroud,6.7,FWD,0.8,4,7.2,22.4,,CHE,6,0,,0,4
+133,Zaha,6.8,MID,2.2,11,19.8,61.6,,CRY,7,0,,0,11
+134,Milivojevic,6.8,MID,2,10,18,56,,CRY,7,0,,0,10
+113,Willian,7,MID,1.4,7,12.6,39.2,,CHE,6,0,,0,7
+182,Alexander-Arnold,7.1,DEF,6.2,31,55.8,173.6,,LIV,10,1,1,1,31
+345,Lucas Moura,7.3,MID,3,15,27,84,,TOT,17,0,,0,15
+460,Abraham,7.4,FWD,8.8,44,79.2,246.4,,CHE,6,1,1,1,44
+219,David Silva,7.5,MID,7.2,36,64.8,201.6,,MCI,11,1,1,1,36
+218,Bernardo Silva,7.8,MID,6.6,33,59.4,184.8,,MCI,11,0,,0,33
+187,Firmino,9.5,FWD,8.8,44,79.2,246.4,,LIV,10,1,1,1,44
+211,Jesus,9.5,FWD,2.2,11,19.8,61.6,,MCI,11,0,,0,11
+342,Son,9.6,MID,5.6,28,50.4,156.8,,TOT,17,1,1,1,28
+215,De Bruyne,9.9,MID,10.8,54,97.2,302.4,,MCI,11,1,1,2,54
+338,Kane,11,FWD,7.2,36,64.8,201.6,,TOT,17,0,,0,36
+192,Mané,11.6,MID,8.4,42,75.6,235.2,Dead leg - 75% chance of playing (22 Sep 2019),LIV,10,0,,0,42
+214,Sterling,12.1,MID,7.8,39,70.2,218.4,,MCI,11,0,,0,39
+210,Agüero,12.2,FWD,11,55,99,308,,MCI,11,0,,0,55
+191,Salah,12.5,MID,10,50,90,280,,LIV,10,0,,0,50

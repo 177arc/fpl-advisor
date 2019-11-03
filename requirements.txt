@@ -1,0 +1,6 @@
+# see https://github.com/ipython/ipykernel/issues/356
+ipykernel>=5.0.1
+# see https://stackoverflow.com/questions/47518874/how-do-i-run-python-asyncio-code-in-a-jupyter-notebook
+ipython>=7.0
+pandas-datadict
+pandas-fpl

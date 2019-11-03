@@ -1,0 +1,77 @@
+﻿Data Set,Field,Name,Description,Type,Format
+player,web_name,Name,Simplified unique name of the player,str,
+player,current_cost,Current Cost,Current cost of the player,float,£{:.1f}m
+,,Fixture Cost,Cost of the player at the time of the fixture.,float,£{:.1f}m
+player,field_pos,Field Position,"Position of the player. Either GK, DEF, MID, FWD.",str,
+player,total_points,Total Points,Total number of points this season,int,{:.0f} pts
+player,selected,Selected?,Is the player in the user's team?,bool,{:}
+player,is_captain,Captain?,Is the player selected to be the captain?,bool,{:}
+player,is_vice_captain,Vice Captain?,Is the player selected to be the vice captain?,bool,{:}
+player,points_per_cost,Points Per Cost,Total number of points divided by the player cost. This is can be an indicator for whether the player is undervalued or overpriced.,float,{:.1f}
+player,minutes_percent,Minutes Percent,Percent of total number of minutes played this season compared to maximum played by any player,float,{:.0f}%
+player,minutes,Minutes Played,Number of minutes the player has played this season,int,{:.0f} min
+player,selected_by_percent,Percent Selected,Percentage of participants who currently have the player in their team,float,{:.1f}%
+,,Fixture Percent Selected,Percentage of participants who select the player for this fixture,float,{:.1f}%
+player,news_and_date,News And Date,News about the players and the date when it was added,str,
+player,team,Player Team ID,ID of the team that the player is in,int,
+player,first_name,First Name,First name of the player,str,
+player,second_name,Last Name,Last name of the player,str,
+player,chance_of_playing_this_round,Chance Avail Next GW,Probability of the player will be available for playing the next game,float,{:.0f}%
+player,chance_of_playing_next_round,Chance Avail After Next GW,Probability of the player will be available for playing the game after next,float,{:.0f}%
+team,short_name,Team Short Name,Short name of the team,str,
+team,name,Team Name,Name of the team,str,
+,,Team Short Name Home,Team short name playing at home,str,
+,,Team Name Home,Team name playing at home,str,
+,,Team Short Name Away,Team short name playing at away,str,
+,,Team Name Away,Team name playing at away,str,
+,,Expected Points Next GW,Number of points that the player is expected to earn during the next game week,float,{:.1f}
+,,Expected Points Next 5 GWs,Number of points that the player is expected to earn over the next five game weeks,float,{:.0f}
+,,Expected Points GWs To Half,Number of points that the player is expected to earn over remaining game weeks of the current half season,float,{:.0f}
+,,Expected Points GWs To End,Number of points that the player is expected to earn over remaining game weeks of the current season,float,{:.0f}
+,,Fixture Strength Home,Strength of the home team for a specific fixture,int,{:.0f}
+,,Fixture Strength Away,Strength of the away team for a specific fixture,int,{:.0f}
+,,Rel. Fixture Strength Home,Strengh of the home team relative to the away team for a specific fixture,float,{:.2f}
+,,Rel. Fixture Strength Away,Strengh of the away team relative to the home team for a specific fixture,float,{:.2f}
+,,Rel. Fixture Strength Finished GWs,Average relative strengths of all completed fixtures (higher values indicate lower difficulty),float,{:.2f}
+,,Rel. Fixture Strength Next GW,Average relative strengths of the next fixture (higher values indicate lower difficulty),float,{:.2f}
+,,Rel. Fixture Strength Next 5 GWs,Average relative strengths of the next five fixtures (higher values indicate lower difficulty),float,{:.2f}
+,,Rel. Fixture Strength GWs To Half,Average relative strengths of all fixtures left up to half of the season or the end of the season if the second half has started (higher values indicate lower difficulty),float,{:.2f}
+,,Rel. Fixture Strength GWs To End,Average relative strengths of all fixtures left for the season (higher values indicate lower difficulty),float,{:.2f}
+player,selling_price,Selling Price,Money received when selling player,float,£{:.1f}m
+player,purchase_price,Purchase Price,Money spent when buying player,float,£{:.1f}m
+player,transfers_in_event,Transfers In This GW,Total number of participants buying the player for the upcoming game week. This is the transfer number displayed on the home page in the transfers section.,int,{:.0f}
+player_hist,transfers_in,Game Transfers In,Total number of participants who bought the player for this fixture.,int,{:.0f}
+player,transfers_out_event,Transfers Out This GW,Total number of participants selling the player for the upcoming game week. This is the transfer number displayed on the home page in the transfers section.,int,{:.0f}
+player_hist,transfers_out,Game Transfers Out,Total number of participants who sold the player for this fixture.,int,{:.0f}
+team,strength_attack_home,Strength Attack Home,Strength of attack when playing at home,int,
+team,strength_attack_away,Strength Attack Away,Strength of attack when playing at away,int,
+team,strength_defence_home,Strength Defence Home,Strength of defence when playing at home,int,
+team,strength_defence_away,Strength Defence Away,Strength of defence when playing at away,int,
+team,strength_overall_home,Strength Overall Home,Strength of defence and attack combined at home,int,
+team,strength_overall_away,Strength Overall Away,Strength of defence and attack combined away,int,
+fixture,started,Started,Whether the game has started,bool,
+fixture,finished,Finished,Whether the game has finished,bool,
+,,Next GW,Number of game weeks left to the next game week for a specifc team. This is 1 except after the last game week,int,
+,,Next 5 GWs,Number of game weeks left to the over next five game weeks for a specific team. This is the minimum of 5 and the number of the gameweeks left for the current season,int,
+,,Remaining GWs To Half,Number of game weeks left to the end of the current half of the season for a specific team,int,
+,,Remaining GWs,Number of game weeks left to the end of the season for a specific team,int,
+player,ict_index,ICT Index,ICT Index as calculated by Fantasy Premier Leauge,float,{:.1f}
+,,Fixture Point Consistency,"The consistency of the points the player achieved in completed games during this seaon. It is the inverse of the standard deviation of the points, i.e. the higher the more consistent the points are.",float,{:.0f}%
+team,team,Team ID,ID of the team that the player is in,int,
+player,element_type,Field Position ID,ID of the team that the player is in,int,
+player_hist,fixture,Fixture ID,ID of the fixture,int,
+player_hist,player_id,Player ID,ID of the player,int,
+player_hist,ict_index,Game ICT Index,ICT Index as calculated by Fantasy Premier Leauge at the time of the fixture,float,{:.1f}
+player_hist,total_points,Game Total Points,Total points that the player was awarded for the fixture,int,{:.0f}pts
+player_hist,minutes,Game Minutes Played,Number of minutes the player played at the fixture,int,
+fixture,team_a,Away Team ID,ID of the away team for the fixture,int,{:.0f} min
+fixture,team_h,Home Team ID,ID of the home team for the fixture,int,
+fixture,team_a_score,Away Team Score,The goals scored by the away team,int,
+fixture,team_h_score,Home Team Score,The goals scored by the home team,int,
+fixture,team_a_difficulty,Away Team Difficulty,The difficult score of the away team (1: Easy to 5: Difficult),int,
+fixture,team_h_difficulty,Home Team Difficulty,The difficult score of the home team (1: Easy to 5: Difficult),int,
+fixture,event,Game Week,The game week of the fixture (1 to 38),int,
+fixture,kickoff_time,Kick Off Time,The kick off date and time of the fixture,datetime64,
+fixture,minutes,Fixture Minutes Played,The minutes played at the fixture,int,{:.0f} min
+player,position,Team Position,"Position in the team selection, e.g. 0 is the goal keeper.",int,{:.0f}
+player,multiplier,Point Factor,"The multiplier for calculating the expected points at the team level. This value is 0 for players that are not selected, 2 for the captain and 1 for the rest.",int,
