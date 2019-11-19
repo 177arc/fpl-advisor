@@ -5,7 +5,6 @@ from plotly.graph_objs import Scatter
 import plotly.offline as py
 from datadict.jupyter import DataDict
 
-
 def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: str, dd: pd.DataFrame):
     """
     Returns a plotly chart with expected points as the y-axis and cost on the x-axis for a specific time horizon. This chart can be displayed in the Jupyter notebook.
@@ -66,8 +65,8 @@ def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: st
         {
             'data': data,
             'layout': {
-                'xaxis': {'title': 'Current Cost (lower is better)', 'showspikes': 'True'},
-                'yaxis': {'title': f'Expected Points {horizon} (higher is better)', 'showspikes': 'True'},
+                'xaxis': {'title': 'Current Cost (lower is better)', 'showspikes': True},
+                'yaxis': {'title': f'Expected Points {horizon} (higher is better)', 'showspikes': True},
                 'hovermode': 'closest'
             }
         }
