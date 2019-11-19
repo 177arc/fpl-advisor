@@ -19,7 +19,7 @@ def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: st
         The plotly chart.
     """
     player_expected_points = player_expected_points[
-        ['Name and Short Team', 'Field Position', 'Current Cost', 'Total Points', 'Points Per Cost', 'Minutes Percent', 'News And Date', 'Fixtures Next 5 GWs', 'photo', 'ICT Index', 'Fixture Point Consistency']
+        ['Name and Short Team', 'Field Position', 'Current Cost', 'Total Points', 'Points Per Cost', 'Minutes Percent', 'News And Date', 'Fixtures Next 5 GWs', 'photo', 'ICT Index', 'Total Points Consistency']
         + ['Expected Points ' + next_gw for next_gw in next_gws]
         + ['Rel. Fixture Strength ' + next_gw for next_gw in next_gws]
         + (['In Team?'] if 'In Team?' in player_expected_points.columns.values else [])]
@@ -29,7 +29,7 @@ def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: st
                                       + ', Cost: ' + player_expected_points_formatted['Current Cost'] \
                                       + ', Total Points: ' + player_expected_points_formatted['Total Points'] \
                                       + '<br>Minutes Percent: ' + player_expected_points_formatted['Minutes Percent'] \
-                                      + ', Consistency: ' + player_expected_points_formatted['Fixture Point Consistency'] \
+                                      + ', Consistency: ' + player_expected_points_formatted['Total Points Consistency'] \
                                       + ', ICT: ' + player_expected_points_formatted['ICT Index'] \
                                       + ', Rel. Strength: ' + player_expected_points_formatted['Rel. Fixture Strength '+horizon] \
                                       + '<br>Next: ' + player_expected_points_formatted['Fixtures Next 5 GWs'].astype('str') \
@@ -66,8 +66,8 @@ def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: st
         {
             'data': data,
             'layout': {
-                'xaxis': {'title': 'Current Cost (lower is better)'},
-                'yaxis': {'title': f'Expected Points {horizon} (higher is better)'},
+                'xaxis': {'title': 'Current Cost (lower is better)', 'showspikes': 'True'},
+                'yaxis': {'title': f'Expected Points {horizon} (higher is better)', 'showspikes': 'True'},
                 'hovermode': 'closest'
             }
         }
@@ -90,7 +90,7 @@ def display_team(team: pd.DataFrame, dd: DataDict, in_team: bool = False) -> wid
         team = team.sort_values('Team Position')
 
     team['Name'] = team.apply(lambda row: row['Name'] + ' (C)' if row['Captain?'] else row['Name'] + ' (V)' if row['Vice Captain?'] else row['Name'], axis=1)
-    team_cols = ['Name', 'Team Short Name'] + (['In Team?'] if in_team else []) + ['Selected?', 'Current Cost', 'Field Position', 'Minutes Percent', 'News And Date', 'Expected Points Next GW', 'Expected Points Next 5 GWs', 'Fixture Point Consistency']
+    team_cols = ['Name', 'Team Short Name'] + (['In Team?'] if in_team else []) + ['Selected?', 'Current Cost', 'Field Position', 'Minutes Percent', 'News And Date', 'Expected Points Next GW', 'Expected Points Next 5 GWs', 'Total Points Consistency']
 
     parts = []
     parts += [widgets.HTML('<h3>Stats</h3>')]

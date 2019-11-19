@@ -10,7 +10,7 @@ def summarise_team(team: pd.DataFrame) -> pd.DataFrame:
 
     aggr = {'Current Cost': 'sum'}
     aggr = {**aggr, **{'Expected Points ' + gw: 'sum' for gw in next_gws}}
-    aggr = {**aggr, **{'Fixture Point Consistency': 'mean'}}
+    aggr = {**aggr, **{'Total Points Consistency': 'mean'}}
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

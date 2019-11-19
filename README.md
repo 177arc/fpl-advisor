@@ -17,7 +17,7 @@ Jupyter notebook for interactively analysing Fantasy Premier League (FPL) player
 
 ## Usage
 
-To use the Jupyter notebook interactively, simply open the [advisor.ipynb notebook](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) on Binder (it may take a bit of time to deploy the notebook). To simply view it, open the [advisor.ipynb notebook](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/advisor.ipynb) on NBViewer.
+To use the Jupyter notebook interactively, simply open the [advisor.ipynb notebook on Binder](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) (it may take a bit of time to deploy the notebook). To simply view it, open the [advisor.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/advisor.ipynb).
 
 Alternatively, simply clone the repository and open advisor.ipynb locally.
 
