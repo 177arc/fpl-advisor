@@ -42,7 +42,6 @@ def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget
             .pipe(__add_position_dummy)
             .pipe(__add_team_dummy)
             .pipe(__add_in_team, recommend)
-            .pipe(__remove_news_players, recommend)
     )
     n_players = sum(int(i) for i in formation.split('-'))
 

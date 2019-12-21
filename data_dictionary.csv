@@ -16,8 +16,8 @@ player,news_and_date,News And Date,News about the players and the date when it w
 player,team,Player Team ID,ID of the team that the player is in,int,
 player,first_name,First Name,First name of the player,str,
 player,second_name,Last Name,Last name of the player,str,
-player,chance_of_playing_this_round,Chance Avail Next GW,Probability of the player will be available for playing the next game,float,{:.0f}%
-player,chance_of_playing_next_round,Chance Avail After Next GW,Probability of the player will be available for playing the game after next,float,{:.0f}%
+player,chance_of_playing_this_round,Chance Avail This GW,Probability of the player will be available for playing the next game,float,{:.0f}%
+player,chance_of_playing_next_round,Chance Avail Next GW,Probability of the player will be available for playing the game after next,float,{:.0f}%
 team,short_name,Team Short Name,Short name of the team,str,
 team,name,Team Name,Name of the team,str,
 ,,Team Short Name Home,Team short name playing at home,str,
@@ -71,6 +71,7 @@ fixture,team_h_score,Home Team Score,The goals scored by the home team,int,
 fixture,team_a_difficulty,Away Team Difficulty,The difficult score of the away team (1: Easy to 5: Difficult),int,
 fixture,team_h_difficulty,Home Team Difficulty,The difficult score of the home team (1: Easy to 5: Difficult),int,
 fixture,event,Game Week,The game week of the fixture (1 to 38),int,
+,,Current Game Week,The current game week for the team.,int,
 fixture,kickoff_time,Kick Off Time,The kick off date and time of the fixture,datetime64,
 fixture,minutes,Fixture Minutes Played,The minutes played at the fixture,int,{:.0f} min
 player,position,Team Position,"Position in the team selection, e.g. 0 is the goal keeper.",int,{:.0f}
