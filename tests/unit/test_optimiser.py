@@ -21,7 +21,7 @@ class TestOptimiser(unittest.TestCase):
         position_counts = squad[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
         self.assertDictEqual(position_counts, {'DEF': 5, 'FWD': 3, 'GK': 2, 'MID': 5}, msg='Team composition incorrect.')
 
-        self.assertListEqual(list(squad['Name'].values), ['Alderweireld', 'van Dijk', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Ayew', 'Kane', 'Abraham', 'Adrián', 'Lloris', 'Kovacic', 'Mount', 'Bernardo Silva', 'David Silva', 'De Bruyne'])
+        self.assertListEqual(list(squad['Name'].values), ['Kelly', 'Alderweireld', 'Matip', 'Ward', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
 
         self.assertLessEqual(squad['Current Cost'].sum()-0.01, budget, msg='Budget breached.')
         self.assertGreaterEqual(squad['Current Cost'].sum(), budget*0.95, msg='Budget not used well enough.')
@@ -30,7 +30,7 @@ class TestOptimiser(unittest.TestCase):
         self.assertTrue(squad[squad['Name'] == 'Abraham']['Vice Captain?'].iloc[0])
         self.assertEqual(squad[squad['Captain?'] == True]['Captain?'].count(), 1, msg='More than one Captain')
         self.assertEqual(squad[squad['Vice Captain?'] == True]['Vice Captain?'].count(), 1, msg='More than one Vice Captain')
-        self.assertListEqual(list(squad[squad['Selected?'] == True]['Name'].values), ['van Dijk', 'van Aanholt', 'Alexander-Arnold', 'Ayew', 'Kane', 'Abraham', 'Lloris', 'Mount', 'Bernardo Silva', 'David Silva', 'De Bruyne'])
+        self.assertListEqual(list(squad[squad['Selected?'] == True]['Name'].values),  ['Matip', 'Ward', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Ederson', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
         self.assertEqual(squad['Selected?'].isin([True]).sum(), 11, msg='Not 11 players selected.')
 
         self.assertTrue(squad[(squad['Selected?'] == True) & (squad['Captain?'] == False)]['Point Factor'].eq(1).all())
@@ -49,7 +49,7 @@ class TestOptimiser(unittest.TestCase):
 
         position_counts = squad[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
         self.assertDictEqual(position_counts, {'DEF': 5, 'FWD': 3, 'GK': 2, 'MID': 5}, msg='Team composition incorrect.')
-        self.assertListEqual(list(squad['Name'].values), ['Walker-Peters', 'Kelly', 'Alderweireld', 'Matip', 'Ward', 'Ayew', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Mount', 'David Silva', 'Salah', 'De Bruyne'])
+        self.assertListEqual(list(squad['Name'].values), ['Kelly', 'Alderweireld', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Origi', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
         self.assertLessEqual(squad['Current Cost'].sum(), budget)
         self.assertGreaterEqual(squad['Current Cost'].sum(), budget*0.95)
 

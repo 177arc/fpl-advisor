@@ -5,42 +5,42 @@ from plotly.graph_objs import Scatter
 import plotly.offline as py
 from datadict.jupyter import DataDict
 
-def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: str, dd: pd.DataFrame):
+def player_strength_by_horizon(player_eps: pd.DataFrame, horizon: str, dd: pd.DataFrame, current_gw: int):
     """
     Returns a plotly chart with expected points as the y-axis and cost on the x-axis for a specific time horizon. This chart can be displayed in the Jupyter notebook.
 
     Args:
-        player_expected_points: The data frame with data to chart.
+        player_eps: The data frame with data to chart.
         horizon: The time horizon of the chart, e.g. Next GW, Next 5 GWs, etc.
         dd: The data dictionary to use for formatting.
 
     Returns:
         The plotly chart.
     """
-    player_expected_points = player_expected_points[
-        ['Name and Short Team', 'Field Position', 'Current Cost', 'Total Points', 'Points Per Cost', 'Minutes Percent', 'News And Date', 'Fixtures Next 5 GWs', 'photo', 'ICT Index', 'Total Points Consistency']
-        + ['Expected Points ' + next_gw for next_gw in next_gws]
-        + ['Rel. Fixture Strength ' + next_gw for next_gw in next_gws]
-        + (['In Team?'] if 'In Team?' in player_expected_points.columns.values else [])]
-    player_expected_points_formatted = dd.format(player_expected_points)
-    player_expected_points['Label'] = player_expected_points_formatted['Name and Short Team'] \
-                                      + ', ' + player_expected_points_formatted['Field Position'] \
-                                      + ', Cost: ' + player_expected_points_formatted['Current Cost'] \
-                                      + ', Total Points: ' + player_expected_points_formatted['Total Points'] \
-                                      + '<br>Minutes Percent: ' + player_expected_points_formatted['Minutes Percent'] \
-                                      + ', Consistency: ' + player_expected_points_formatted['Total Points Consistency'] \
-                                      + ', ICT: ' + player_expected_points_formatted['ICT Index'] \
-                                      + ', Rel. Strength: ' + player_expected_points_formatted['Rel. Fixture Strength '+horizon] \
-                                      + '<br>Next: ' + player_expected_points_formatted['Fixtures Next 5 GWs'].astype('str') \
-                                      + '<br>News: ' + player_expected_points_formatted['News And Date'].astype('str')
+    player_eps = player_eps[
+        ['Name and Short Team', 'Field Position', 'Current Cost', 'Total Points', 'Minutes Percent', 'News And Date', 'Fixtures Next 5 GWs', 'ICT Index', 'Total Points Consistency']
+        + [f'Expected Points {next_gw}'  for next_gw in next_gws]
+#        + ['Rel. Fixture Strength ' + next_gw for next_gw in next_gws]
+        + (['In Team?'] if 'In Team?' in player_eps.columns.values else [])]
+    player_eps_formatted = dd.format(player_eps)
+    player_eps['Label'] = (player_eps_formatted['Name and Short Team']
+                                      + ', ' + player_eps_formatted['Field Position']
+                                      + ', Cost: ' + player_eps_formatted['Current Cost']
+                                      + ', Total Points: ' + player_eps_formatted['Total Points']
+                                      + '<br>Minutes Percent: ' + player_eps_formatted['Minutes Percent']
+                                      + ', Consistency: ' + player_eps_formatted['Total Points Consistency']
+                                      + ', ICT: ' + player_eps_formatted['ICT Index']
+#                                      + ', Rel. Strength: ' + player_eps_formatted['Rel. Fixture Strength '+horizon+' Calc'] \
+                                      + '<br>Next: ' + player_eps_formatted['Fixtures Next 5 GWs']
+                                      + '<br>News: ' + player_eps_formatted['News And Date'])
 
     colors = {'GK': 'rgba(31, 119, 180, 1)', 'DEF': 'rgba(255, 127, 14, 1)', 'MID': 'rgba(44, 160, 44, 1)', 'FWD': 'rgba(214, 39, 40, 1)'}
 
     data = []
-    if 'In Team?' in player_expected_points.columns.values:
+    if 'In Team?' in player_eps.columns.values:
         data += [Scatter(**{
-            'x': player_expected_points[player_expected_points['In Team?'] == True]['Current Cost'],
-            'y': player_expected_points[player_expected_points['In Team?'] == True]['Expected Points ' + horizon],
+            'x': player_eps[player_eps['In Team?'] == True]['Current Cost'],
+            'y': player_eps[player_eps['In Team?'] == True]['Expected Points ' + horizon],
             'mode': 'markers',
             'marker': {
                 'size': 15,
@@ -48,29 +48,31 @@ def player_strength_by_horizon(player_expected_points: pd.DataFrame, horizon: st
                 'line': {'width': 1},
             },
             'name': 'In Team',
-            'text': player_expected_points[player_expected_points['In Team?'] == True]['Label']})]
+            'text': player_eps[player_eps['In Team?'] == True]['Label']})]
 
     data += [Scatter(**{
-        'x': player_expected_points[player_expected_points['Field Position'] == position]['Current Cost'],
-        'y': player_expected_points[player_expected_points['Field Position'] == position]['Expected Points ' + horizon],
+        'x': player_eps[player_eps['Field Position'] == position]['Current Cost'],
+        'y': player_eps[player_eps['Field Position'] == position]['Expected Points '+horizon],
         'name': position,
         'mode': 'markers',
         'marker': {
             'color': colors[position],
         },
-        'text': player_expected_points[player_expected_points['Field Position'] == position]['Label']
+        'text': player_eps[player_eps['Field Position'] == position]['Label']
     }) for position in position_by_type.values()]
 
     return (py.iplot(
         {
             'data': data,
             'layout': {
+                'title': f'Expected Points for Game Week {current_gw}',
                 'xaxis': {'title': 'Current Cost (lower is better)', 'showspikes': True},
                 'yaxis': {'title': f'Expected Points {horizon} (higher is better)', 'showspikes': True},
                 'hovermode': 'closest'
             }
         }
     ))
+
 
 def display_team(team: pd.DataFrame, dd: DataDict, in_team: bool = False) -> widgets.Widget:
     """
