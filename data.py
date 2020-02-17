@@ -1,3 +1,7 @@
+"""
+This module contains functions for deriving new FPL data set from existing ones.
+"""
+
 import pandas as pd
 import datetime as dt
 import re

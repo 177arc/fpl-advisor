@@ -1,12 +1,27 @@
+"""
+This module contains functions that support the training and running Tensorflow neural networks.
+"""
+
 import pandas as pd
 import tensorflow as tf
 import numpy as np
 import re
 
-# A utility method to create a tf.data dataset from a Pandas Dataframe
-def df_to_ds(df: pd.DataFrame, target_col: str, shuffle: bool = False, batch_size: int = 32) -> tf.data.Dataset:
+def df_to_ds(df: pd.DataFrame, pred_col: str, shuffle: bool = False, batch_size: int = 32) -> tf.data.Dataset:
+    """
+    Converts the given data frame into a TensorFlow data set.
+
+    Args:
+        df: The data frame to be converted.
+        pred_col: The name of the column with the value to predict, i.e. the label column.
+        shuffle: Whether to shuffle the data set or not.
+        batch_size: The batch size when shuffling the data set.
+
+    Returns:
+        The converted TensorFlow data set
+    """
     df = df.copy()
-    labels = df.pop(target_col)
+    labels = df.pop(pred_col)
     ds = tf.data.Dataset.from_tensor_slices((dict(df), labels))
 
     if shuffle:

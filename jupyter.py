@@ -1,9 +1,16 @@
+"""
+This module contains functions for displaying plot and widgets in Jupyter notebooks.
+"""
+
 from ipywidgets import IntProgress, HTML, VBox, widgets
 from IPython.display import display
 from common import *
-from plotly.graph_objs import Scatter
 import plotly.offline as py
+import plotly.io as pio
+from plotly.graph_objects import Scatter
 from datadict.jupyter import DataDict
+
+pio.templates.default = 'plotly_white'
 
 def player_strength_by_horizon(player_eps: pd.DataFrame, horizon: str, dd: pd.DataFrame, current_gw: int):
     """
@@ -21,7 +28,7 @@ def player_strength_by_horizon(player_eps: pd.DataFrame, horizon: str, dd: pd.Da
         ['Name and Short Team', 'Field Position', 'Current Cost', 'Total Points', 'Minutes Percent', 'News And Date', 'Fixtures Next 5 GWs', 'ICT Index', 'Total Points Consistency']
         + [f'Expected Points {next_gw}'  for next_gw in next_gws]
 #        + ['Rel. Fixture Strength ' + next_gw for next_gw in next_gws]
-        + (['In Team?'] if 'In Team?' in player_eps.columns.values else [])]
+        + (['In Team?'] if 'In Team?' in player_eps.columns.values else [])].copy()
     player_eps_formatted = dd.format(player_eps)
     player_eps['Label'] = (player_eps_formatted['Name and Short Team']
                                       + ', ' + player_eps_formatted['Field Position']
@@ -72,6 +79,7 @@ def player_strength_by_horizon(player_eps: pd.DataFrame, horizon: str, dd: pd.Da
             }
         }
     ))
+
 
 
 def display_team(team: pd.DataFrame, dd: DataDict, in_team: bool = False) -> widgets.Widget:

@@ -187,7 +187,7 @@ def get_optimal_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budg
             f'players_df must at least include the following columns: {required_columns},  {list(set(required_columns) - set(players_df.columns))} are missing. Please ensure the data frame contains these columns.')
 
     # Select the best team first
-    optimised_team = __optimse_squad(players_df, formation, budget, optimise_team_on, recommend)
+    optimised_team = __optimse_squad(players_df, formation, budget, optimise_team_on, recommend).copy()
 
     # Check whether a valid solution could be found
     if optimised_team['Current Cost'].sum() > budget+0.01:
@@ -203,8 +203,8 @@ def get_optimal_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budg
         optimised_team = optimised_team.sort_values(['Selected?', optimise_sel_on], ascending=False)
         optimised_team['Captain?'] = False
         optimised_team['Vice Captain?'] = False
-        optimised_team['Captain?'].iloc[0] = True
-        if (optimised_team.shape[0] > 1): optimised_team['Vice Captain?'].iloc[1] = True
+        optimised_team.iloc[0, optimised_team.columns.get_loc('Captain?')] = True
+        if (optimised_team.shape[0] > 1): optimised_team.iloc[1, optimised_team.columns.get_loc('Vice Captain?')] = True
         optimised_team['Point Factor'] = optimised_team.apply(lambda row: 0 if not row['Selected?'] else 1 if not row['Captain?'] else 2, axis=1)
         optimised_team = optimised_team.sort_values(['Field Position', optimise_team_on])
 

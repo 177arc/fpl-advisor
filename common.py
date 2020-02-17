@@ -1,3 +1,7 @@
+"""
+This module contains shared helper functions.
+"""
+
 import pandas as pd
 import numpy as np
 import warnings
