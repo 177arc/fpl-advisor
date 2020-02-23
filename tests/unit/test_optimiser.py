@@ -6,6 +6,10 @@ import os
 
 
 class TestOptimiser(unittest.TestCase):
+    """
+    Unit tests the optimiser functions.
+    """
+
     test_file = os.path.join(os.path.dirname(__file__), 'test_data_optimiser.csv')
 
     def test_optimal_team(self):

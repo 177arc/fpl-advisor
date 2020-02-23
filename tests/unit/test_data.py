@@ -2,8 +2,11 @@ import unittest, os
 from pandas.util.testing import assert_frame_equal
 from data import *
 
-# Unit tests the calc_eps_for_next_gws function.
 class TestCalcEpsForNextGws(unittest.TestCase):
+    """
+    Unit tests the calc_eps_for_next_gws function.
+    """
+
     def test_calc_eps_for_next_gws_first_gw(self):
         player_gw_next_eps = (pd.read_csv('test_calc_eps_for_next_gws.csv')
                               .set_index('Player ID')
@@ -40,8 +43,11 @@ class TestCalcEpsForNextGws(unittest.TestCase):
 
         assert_frame_equal(pd.read_csv('assert_calc_eps_for_next_gws_last_fixture.csv'), player_gw_next_eps, check_dtype=False)
 
-# Unit tests the get_next_gw_counts function.
+
 class TestGetNextGwCounts(unittest.TestCase):
+    """
+    Unit tests the get_next_gw_counts function.
+    """
     def test_get_next_gw_counts_first_gw(self):
         next_gw_counts = get_next_gw_counts(['Next GW', 'Next 7 GWs', 'GWs To End'], 1, 38)
         self.assertDictEqual(next_gw_counts, {'Next GW': 1, 'Next 7 GWs': 7, 'GWs To End': 38})
@@ -55,8 +61,10 @@ class TestGetNextGwCounts(unittest.TestCase):
         self.assertDictEqual(next_gw_counts, {'Next GW': 0, 'Next 7 GWs': 0, 'GWs To End': 0})
 
 
-# Unit tests the get_next_gw_counts function.
 class TestCalcEps(unittest.TestCase):
+    """
+    Unit tests the get_next_gw_counts function.
+    """
     test_file = os.path.join(os.path.dirname(__file__), 'test_calc_eps.csv')
 
     def test_calc_eps(self):
@@ -67,8 +75,10 @@ class TestCalcEps(unittest.TestCase):
         assert_frame_equal(pd.read_csv('assert_calc_eps.csv'), players_fixture_team_eps)
 
 
-# Unit tests the get_next_gw_counts function.
 class TestCalcPlayerFixtureStats(unittest.TestCase):
+    """
+    Unit tests the get_next_gw_counts function.
+    """
     test_file = os.path.join(os.path.dirname(__file__), 'test_calc_player_fixture_stats.csv')
 
     def test_calc_player_fixture_stats(self):
@@ -80,3 +90,50 @@ class TestCalcPlayerFixtureStats(unittest.TestCase):
         assert_frame_equal(pd.read_csv('assert_calc_player_fixture_stats.csv'),
                            player_fixture_stats,
                            check_dtype=False)
+
+
+class TestProjToGw(unittest.TestCase):
+    """
+    Unit tests the proj_to_gw function.
+    """
+    test_file = os.path.join(os.path.dirname(__file__), 'test_proj_to_gw.csv')
+
+    def test_proj_to_gw_for_normal_gw(self):
+        players_gw_team_eps = (pd.read_csv(self.test_file)
+                                .set_index(['Player ID', 'Fixture ID'])
+                                .pipe(proj_to_gw)
+                                .reset_index()
+                                [lambda df: df['Game Week'] == 17]
+                                .set_index(['Player ID', 'Game Week'])
+                               [['Name', 'Expected Points', 'Fixture Short Name Difficulty', 'Rel. Fixture Strength']])
+
+        assert_frame_equal(pd.read_csv('assert_proj_to_gw_for_normal_gw.csv').set_index(['Player ID', 'Game Week']),
+                       players_gw_team_eps,
+                       check_dtype=False)
+
+    def test_proj_to_gw_for_missing_gw(self):
+        players_gw_team_eps = (pd.read_csv(self.test_file)
+                                .set_index(['Player ID', 'Fixture ID'])
+                                .pipe(proj_to_gw)
+                                .reset_index()
+                                [lambda df: df['Game Week'] == 18]
+                                .set_index(['Player ID', 'Game Week'])
+                               [['Name', 'Expected Points', 'Fixture Short Name Difficulty', 'Rel. Fixture Strength']])
+
+        assert_frame_equal(pd.read_csv('assert_proj_to_gw_for_missing_gw.csv').set_index(['Player ID', 'Game Week']),
+                       players_gw_team_eps,
+                       check_dtype=False)
+
+
+    def test_proj_to_gw_for_double_gw(self):
+        players_gw_team_eps = (pd.read_csv(self.test_file)
+                                .set_index(['Player ID', 'Fixture ID'])
+                                .pipe(proj_to_gw)
+                                .reset_index()
+                                [lambda df: df['Game Week'] == 24]
+                                .set_index(['Player ID', 'Game Week'])
+                               [['Name', 'Expected Points', 'Fixture Short Name Difficulty', 'Rel. Fixture Strength']])
+
+        assert_frame_equal(pd.read_csv('assert_proj_to_gw_for_double_gw.csv').set_index(['Player ID', 'Game Week']),
+                       players_gw_team_eps,
+                       check_dtype=False)

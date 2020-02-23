@@ -7,6 +7,7 @@ from IPython.display import display
 from common import *
 import plotly.offline as py
 import plotly.io as pio
+import re
 from plotly.graph_objects import Scatter
 from datadict.jupyter import DataDict
 
@@ -81,7 +82,6 @@ def player_strength_by_horizon(player_eps: pd.DataFrame, horizon: str, dd: pd.Da
     ))
 
 
-
 def display_team(team: pd.DataFrame, dd: DataDict, in_team: bool = False) -> widgets.Widget:
     """
     Returns a widget that can be used to show the team and summary stats in a Jupyter notebook.
@@ -107,6 +107,47 @@ def display_team(team: pd.DataFrame, dd: DataDict, in_team: bool = False) -> wid
     parts += [widgets.HTML('<h3>Team</h3>')]
     parts += [dd.display(team[team_cols], head=15, excel_file='team.xlsx', index=False)]
     return widgets.VBox(parts)
+
+
+def filter_ep_col_names(col_names: list) -> list:
+    """
+    Filters forward expected points column names from the given list of column names
+    Args:
+        col_names: The list of column names.
+
+    Returns:
+        A list with forward expected points column names.
+    """
+    return list(filter(lambda x:
+                       re.match(r'Expected Points (Next|GWs)', x),
+                       col_names))
+
+
+def summarise_team(team: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates summary stats for the given team data frame, including total cost, expected points for the different time horizons and point consistency.
+    Args:
+        team: The data frame representing the team.
+
+    Returns:
+        A data frame with the summary stats.
+    """
+    for ep_col_name in filter_ep_col_names(team.columns.values):
+        team[ep_col_name] = team.apply(lambda row: row[ep_col_name] * max(row['Point Factor'], 1), axis=1)
+
+    aggr = {'Current Cost': 'sum'}
+    aggr = {**aggr, **{'Expected Points ' + gw: 'sum' for gw in next_gws}}
+    aggr = {**aggr, **{'Total Points Consistency': 'mean'}}
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        team_summary = team.agg(aggr).to_frame().T
+        team_summary['Team'] = 'All Players'
+        team_sel_summary = team[team['Selected?'] == True].agg(aggr).to_frame().T
+        team_sel_summary['Team'] = 'Selected Players'
+
+    summary = pd.concat([team_summary, team_sel_summary])
+    return summary.set_index('Team')
 
 
 def log_progress(sequence, every=None, size=None, name='Items') -> object:

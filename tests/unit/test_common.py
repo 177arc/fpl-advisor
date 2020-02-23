@@ -4,6 +4,10 @@ from jupyter import *
 
 # Unit tests the summarise_team function.
 class TestSummariseTeam(unittest.TestCase):
+    """
+    Unit tests the summarise_team function.
+    """
+
     test_file = os.path.join(os.path.dirname(__file__), 'test_data_optimiser.csv')
 
     def test_summarise_team(self):

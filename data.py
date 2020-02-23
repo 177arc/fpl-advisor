@@ -166,3 +166,42 @@ def prepare_fixtures(fixtures_raw: pd.DataFrame, dd: DataDict) -> pd.DataFrame:
         .pipe(dd.remap, 'fixture')
         .rename_axis('Fixture ID')
         .pipe(dd.reorder))
+
+
+def proj_to_gw(players_fixture_team_eps: pd.DataFrame) -> pd.DataFrame:
+    def proj_to_gw_func(col: pd.Series) -> dict:
+        if col.name in ('Game Total Points', 'Game Minutes Played') or col.name.startswith('Expected Points'):
+            return 'sum'
+
+        if col.name == 'Fixture Short Name Difficulty':
+            return ', '.join
+
+        if np.issubdtype(col.dtype, np.number):
+            return 'mean'
+
+        return 'last'
+
+    def fill_missing_gws(players_gw_team_eps: pd.DataFrame) -> pd.DataFrame:
+        return (players_gw_team_eps
+                # Fills some columns with the value of the last game week if there is no fixture for a player in a particular game week.
+                .assign(**players_gw_team_eps
+                        .groupby('Player ID')[
+            'Player Team ID', 'Name', 'Name and Short Team', 'News And Date', 'Field Position ID', 'Field Position', 'Team Short Name', 'Minutes Played', 'Minutes Percent', 'Current Cost', 'Total Points', 'Total Points Consistency']
+                        .apply(lambda x: x.fillna(method='ffill')).to_dict('series'))
+                # Fills some columns with 0 if there is no fixture for a player in a particular game week.
+                .assign(**players_gw_team_eps
+                        .groupby('Player ID')['Expected Points NN', 'Expected Points Calc', 'Expected Points', 'Chance Avail This GW', 'Chance Avail Next GW']
+                        .apply(lambda x: x.fillna(0.0)).to_dict('series')))
+
+    # Creates a data frame with a row of every game week/player ID combination. This is required to deal with game weeks that have double or missing fixtures.
+    gws = pd.Series(range(1, players_fixture_team_eps['Game Week'].max() + 1))
+    player_gws_index = pd.MultiIndex.from_product([players_fixture_team_eps.index.unique(level=0), gws], names=['Player ID', 'Game Week'])
+    player_gws = pd.DataFrame(index=player_gws_index)
+
+    # Projects from fixtures to game weeks.
+    return (players_fixture_team_eps
+            .groupby(['Player ID', 'Game Week'])
+            .agg({col: proj_to_gw_func(players_fixture_team_eps[col]) for col in players_fixture_team_eps.columns})
+            .drop(columns=['Game Week'])
+            .merge(player_gws, left_index=True, right_index=True, how='right', suffixes=(False, False))
+            .pipe(fill_missing_gws))
