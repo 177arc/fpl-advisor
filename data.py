@@ -9,6 +9,18 @@ from common import *
 from datadict.jupyter import DataDict
 
 def get_team_fixture_scores(fixture_teams: pd.DataFrame, teams: pd.DataFrame) -> pd.DataFrame:
+    """
+    Converts the given fixture team stats (one row per fixture) to a data frame with one row for each fixture and team combination.
+    The resulting data frame has twice as many rows. It then calculates stats for each row form the team's point of view and then
+    adds more team information for each row.
+
+    Args:
+        fixture_teams: The fixture stats data frame.
+        teams: The team data frame.
+
+    Returns:
+        A data frame with one row for each fixture and team combination.
+    """
     validate_df(fixture_teams, 'fixture_teams', ['Fixture ID', 'Game Week', 'Home Team Score', 'Away Team Score', 'Home Team ID', 'Away Team ID'])
     validate_df(teams, 'teams', ['Team Code', 'Team Short Name', 'Team Name'])
 
@@ -26,6 +38,15 @@ def get_team_fixture_scores(fixture_teams: pd.DataFrame, teams: pd.DataFrame) ->
 
 
 def get_team_score_stats(team_fixture_scores: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculates team score stats for each fixture and team combination.
+
+    Args:
+        team_fixture_scores: The fixture and team data frame.
+
+    Returns:
+        The given data frame with the additional stats.
+    """
     validate_df(team_fixture_scores, 'team_fixture_scores', ['Team ID', 'Team Short Name', 'Is Home?', 'Team Goals Scored', 'Team Goals Conceded'])
 
     team_score_stats = (team_fixture_scores
@@ -50,6 +71,17 @@ def get_team_score_stats(team_fixture_scores: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_next_gw_counts(next_gws: list, next_gw: int, total_gws: int) -> dict:
+    """
+    Calculates the remaining game weeks for the given time horizons.
+
+    Args:
+        next_gws: The list of time horizons to calculate the remaining game weeks for, e.g. Next GW, GWS To End and Next 5 GWS.
+        next_gw: The next week to calculate the remaining game weeks from.
+        total_gws: The total number of game week in a season.
+
+    Returns:
+        The remaining game wees for the given time horizons as a dictionary.
+    """
     remain_gws = total_gws - next_gw + 1
     next_gw_counts = {}
     for next_gw in next_gws:
@@ -66,8 +98,19 @@ def get_next_gw_counts(next_gws: list, next_gw: int, total_gws: int) -> dict:
     return next_gw_counts
 
 
-def calc_eps_for_next_gws(df: pd.DataFrame, next_gws: list, next_gw: int, total_gws: int):
-    df = df.sort_values('Game Week')
+def calc_eps_for_next_gws(player_gw_eps: pd.DataFrame, next_gws: list, next_gw: int, total_gws: int):
+    """
+    Calculates the expected points for the given time horizons.
+
+    Args:
+        player_gw_eps: The data frame with the expected points for each player and game week combination.
+        next_gws: The list of time horizons to calculate the expected points for, e.g. Next GW, GWS To End and Next 5 GWS.
+        next_gw: The next week to calculate the remaining game weeks from.
+        total_gws: The total number of game week in a season.
+    Returns:
+        The data frame with the expected points for the given time horizons added as columns.
+    """
+    df = player_gw_eps.sort_values('Game Week')
     next_gw_counts = get_next_gw_counts(next_gws, next_gw, total_gws)
 
     current_df = df[df['Game Week'] == next_gw]
@@ -81,7 +124,7 @@ def calc_eps_for_next_gws(df: pd.DataFrame, next_gws: list, next_gw: int, total_
     return row
 
 
-def calc_eps(player_fixture_stats: pd.DataFrame) -> pd.DataFrame:
+def calc_eps(player_fixture_stats: pd.DataFrame) -> pd.Series:
     return ((player_fixture_stats['Total Points To GW']/player_fixture_stats['GWs Played To GW']).fillna(player_fixture_stats['Total Points To GW'])
                *player_fixture_stats['Rel. Fixture Strength']/player_fixture_stats['Rel. Fixture Strength To GW'].fillna(method='ffill'))
 

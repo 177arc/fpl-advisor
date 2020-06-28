@@ -163,7 +163,6 @@ def log_progress(sequence, every=None, size=None, name='Items') -> object:
 
     """
 
-
     is_iterator = False
     if size is None:
         try:
@@ -175,7 +174,7 @@ def log_progress(sequence, every=None, size=None, name='Items') -> object:
             if size <= 200:
                 every = 1
             else:
-                every = int(size / 200)     # every 0.5%
+                every = int(size / 200)  # every 0.5%
     else:
         assert every is not None, 'sequence is iterator, set every'
 
@@ -193,17 +192,11 @@ def log_progress(sequence, every=None, size=None, name='Items') -> object:
         for index, record in enumerate(sequence, 1):
             if index == 1 or index % every == 0:
                 if is_iterator:
-                    label.value = '{name}: {index} / ?'.format(
-                        name=name,
-                        index=index
-                    )
+                    label.value = f'{name}: {record} / ?'
                 else:
                     progress.value = index
-                    label.value = u'{name}: {index} / {size}'.format(
-                        name=name,
-                        index=index,
-                        size=size
-                    )
+                    label.value = f'{name}: {record} / {sequence[-1]}'
+
             yield record
     except:
         progress.bar_style = 'danger'
@@ -211,8 +204,4 @@ def log_progress(sequence, every=None, size=None, name='Items') -> object:
     else:
         progress.bar_style = 'success'
         progress.value = index
-        label.value = "{name}: {index}".format(
-            name=name,
-            index=str(index or '?')
-        )
-
+        label.value = f'{name}: {record} / {sequence[-1]}'
