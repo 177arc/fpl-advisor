@@ -1,7 +1,3 @@
-"""
-This module contains functions that support the training and running Tensorflow neural networks.
-"""
-
 import pandas as pd
 import tensorflow as tf
 import numpy as np

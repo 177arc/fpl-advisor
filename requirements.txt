@@ -1,13 +1,7 @@
 # see https://github.com/ipython/ipykernel/issues/356
-ipykernel>=5.0.1
+#ipykernel>=5.0.1
 # see https://stackoverflow.com/questions/47518874/how-do-i-run-python-asyncio-code-in-a-jupyter-notebook
-ipython>=7.0
-pandas-datadict>=0.1.1
-pandas-fpl>=0.2.0
-plotly>=4.5.0
-ipywidgets
-pulp
-numpy>=1.18
-scipy>=1.1.0
-scikit-learn>=0.21.3
-tensorflow>=2.0
+#ipython>=7.5
+pandas-datadict>=0.2.0
+plotly==4.8.1
+ipywidgets>=7.5.1

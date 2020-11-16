@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 import pulp
+from typing import List
 
 position_names = ['gk', 'def', 'mid', 'fwd']
 position_min_constraints = [1, 3, 3, 1]
@@ -14,8 +15,8 @@ def __add_position_dummy(df):
 
 
 def __add_team_dummy(df):
-    for t in df['Player Team ID'].unique():
-        df['team_' + str(t).lower()] = np.where(df['Player Team ID'] == t, int(1), int(0))
+    for t in df['Player Team Code'].unique():
+        df['team_' + str(t).lower()] = np.where(df['Player Team Code'] == t, int(1), int(0))
     return df
 
 
@@ -32,9 +33,17 @@ def __remove_news_players(df, recommended):
     else:
         return df[pd.isnull(df['News And Date']) | (df['In Team?'] == True)]
 
+def __add_include_players(df, include):
+    df['is_include'] = np.where(df['Name'].isin(include), int(1), int(0))
+    return df
+
+def __add_exclude_players(df, exclude):
+    df['is_exclude'] = np.where(df['Name'].isin(exclude), int(1), int(0))
+    return df
 
 def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget: float = 100.0,
-                    optimise_on: str = 'Total Points', recommend: int = None) -> pd.DataFrame:
+                    optimise_on: str = 'Total Points', recommend: int = None,
+                    include: List[str] = [], exclude: List[str] = []) -> pd.DataFrame:
     # Filter out those players with news
     season_stats = (
         players_df
@@ -42,6 +51,8 @@ def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget
             .pipe(__add_position_dummy)
             .pipe(__add_team_dummy)
             .pipe(__add_in_team, recommend)
+            .pipe(__add_include_players, include)
+            .pipe(__add_exclude_players, exclude)
     )
     n_players = sum(int(i) for i in formation.split('-'))
 
@@ -67,6 +78,8 @@ def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget
     constraints = dict(zip(position_names, position_constraints))
     constraints['total_cost'] = budget
     constraints['team'] = 3
+    constraints['include'] = len(include)
+    constraints['exclude'] = len(exclude)
 
     # Prepare dictionaries for linear equation
     player_cost = dict(zip(season_stats.index, season_stats.cost))
@@ -74,6 +87,8 @@ def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget
     player_def = dict(zip(season_stats.index, season_stats.is_def))
     player_mid = dict(zip(season_stats.index, season_stats.is_mid))
     player_fwd = dict(zip(season_stats.index, season_stats.is_fwd))
+    player_include = dict(zip(season_stats.index, season_stats.is_include))
+    player_exclude = dict(zip(season_stats.index, season_stats.is_exclude))
 
     # Apply the constraints
     fpl_problem += sum([player_cost[i] * x[i] for i in players]) <= float(constraints['total_cost'])
@@ -81,12 +96,14 @@ def __optimse_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget
     fpl_problem += sum([player_def[i] * x[i] for i in players]) == constraints['def']
     fpl_problem += sum([player_mid[i] * x[i] for i in players]) == constraints['mid']
     fpl_problem += sum([player_fwd[i] * x[i] for i in players]) == constraints['fwd']
+    fpl_problem += sum([player_include[i] * x[i] for i in players]) == constraints['include']
+    fpl_problem += sum([player_exclude[i] * x[i] for i in players]) == 0
 
     if not recommend is None:
         player_in_team = dict(zip(season_stats.index, season_stats.in_team))
         fpl_problem += sum([player_in_team[i] * x[i] for i in players]) == n_players - recommend
 
-    for t in season_stats['Player Team ID']:
+    for t in season_stats['Player Team Code']:
         player_team = dict(
             zip(season_stats.index, season_stats['team_' + str(t)]))
         fpl_problem += sum([player_team[i] * x[i] for i in players]) <= constraints['team']
@@ -147,7 +164,7 @@ def __optimse_selection(players_df: pd.DataFrame, optimise_on: str = 'Total Poin
     fpl_problem += sum([player_fwd[i] * x[i] for i in players]) <= constraints['max_fwd']
     fpl_problem += sum([x[i] for i in players]) == n_players
 
-    for t in season_stats['Player Team ID']:
+    for t in season_stats['Player Team Code']:
         player_team = dict(
             zip(season_stats.index, season_stats['team_' + str(t)]))
         fpl_problem += sum([player_team[i] * x[i] for i in players]) <= constraints['team']
@@ -161,7 +178,8 @@ def __optimse_selection(players_df: pd.DataFrame, optimise_on: str = 'Total Poin
 
 
 def get_optimal_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budget: float = 100.0,
-                      optimise_team_on: str = 'Total Points', optimise_sel_on: str = None, recommend: int = None) -> pd.DataFrame:
+                      optimise_team_on: str = 'Total Points', optimise_sel_on: str = None, recommend: int = None,
+                      include: List[str] = [], exclude: List[str] = [], risk: float = 0.2) -> pd.DataFrame:
     """
     For the given formation and player data frame tries to maximise the total in the given column to optimise om so that
     the current cost is with the given budget. It also adds the ``Captain/Vice Captain`` column to indicate whether a specific player
@@ -174,38 +192,68 @@ def get_optimal_squad(players_df: pd.DataFrame, formation: str = '2-5-5-3', budg
         optimise_team_on: The column in ``players_df`` to use to optimise the team composition, e.g. ``Expected Points Next 5 GWs``. This is different to ``optimise_sel_on`` because the match team selection should be based on the short team where as the team composition should be based on the long term.
         optimise_sel_on: The column in ``players_df`` to use to optimise the team selection.
         recommend: The number of players to recommend transfers for. If specified, ``players_df`` has to include ``Selected?`` to indicate the current squad selection.
+        include: The list of player names that must be in the optimised team.
+        exclude: The list of player names that must NOT be in the optimised team.
+        risk: The amount of risk to take when evaluating the column to optimise on. This number has to be between 0 and 1.
+            The lower the numbers, the lower the risk. If risk is 1, the completeness of the data that the values in the optimisation columns is based on
+            is completely ignored. If  risk is 0, the values in the optimisation columns is multiplied by the completeness of the data.
+            If risk is between 0 and 1 the completeness of the data is take into account in a way that is proportionate to the risk.
 
     Returns:
         The players from ``players_df`` with the highest value in the ``optimise_on`` column for the given formation that is within the budget.
     """
-    required_columns = ['Current Cost', 'News And Date', 'Field Position', 'Player Team ID', optimise_team_on, optimise_sel_on] \
-        + ['In Team?'] if not recommend is None else [] \
-        + [optimise_sel_on] if not optimise_sel_on is None else []
+    def valid_column_not_nan(df, df_name, col_name):
+        if df[col_name].isnull().values.any():
+            raise ValueError(f'At least on of the entries in the {col_name} column of the {df_name} data frame is NaN. The {col_name} must be set for all players.')
+
+    def risk_adj_col(df, col, risk):
+        return (df.assign(**{col+' Risk Adj': lambda df: df[col]*(df['Stats Completeness Percent']/100*(1-risk)+risk)}))
+
+    required_columns = (['Current Cost', 'News And Date', 'Field Position', 'Player Team Code', 'Stats Completeness Percent',  optimise_team_on, optimise_sel_on] \
+        + (['In Team?'] if not recommend is None else [])
+        + ([optimise_sel_on] if not optimise_sel_on is None else []))
+
+    if risk < 0 or risk > 1:
+        raise ValueError(f'The risk argument has to be between 0 and 1 but is {risk}.')
 
     if not set(players_df.columns) >= set(required_columns):
         raise ValueError(
             f'players_df must at least include the following columns: {required_columns},  {list(set(required_columns) - set(players_df.columns))} are missing. Please ensure the data frame contains these columns.')
 
+    if not set(players_df['Name'].values) >= set(include):
+        raise ValueError(f'{list(set(include) - set(players_df["Name"].values))} in include is not in the Name column of players_df.')
+
+    if not set(players_df['Name'].values) >= set(exclude):
+        raise ValueError(f'{list(set(exclude) - set(players_df["Name"].values))} in exclude is not in the Name column of players_df.')
+
+    valid_column_not_nan(players_df, 'players_df', 'Current Cost')
+    valid_column_not_nan(players_df, 'players_df', optimise_team_on)
+    valid_column_not_nan(players_df, 'players_df', optimise_sel_on)
+
+    players_df = (players_df
+        .pipe(risk_adj_col, optimise_team_on, risk)
+        .pipe(risk_adj_col, optimise_sel_on, risk))
+
     # Select the best team first
-    optimised_team = __optimse_squad(players_df, formation, budget, optimise_team_on, recommend).copy()
+    optimised_team = __optimse_squad(players_df, formation, budget, optimise_team_on+' Risk Adj', recommend, include, exclude).copy()
 
     # Check whether a valid solution could be found
     if optimised_team['Current Cost'].sum() > budget+0.01:
         raise Exception(
-            f'An optimal solution within the budget {budget:.1f} could not be found. The minimum budget is {optimised_team["Current Cost"].sum()} You need to increase the budget.')
+            f'An optimal solution within the budget {budget:.1f} could not be found. The minimum budget is {optimised_team["Current Cost"].sum()}.')
 
     if not optimise_sel_on is None:
         # Then select the best players from the team to play, i.e. the best valid formation
-        selected_team = __optimse_selection(optimised_team, optimise_sel_on)
+        selected_team = __optimse_selection(optimised_team, optimise_sel_on+' Risk Adj')
         optimised_team['Selected?'] = optimised_team.index.map(lambda x: x in selected_team.index.values)
 
         # Add the result to the output data frame
-        optimised_team = optimised_team.sort_values(['Selected?', optimise_sel_on], ascending=False)
+        optimised_team = optimised_team.sort_values(['Selected?', optimise_sel_on+' Risk Adj'], ascending=False)
         optimised_team['Captain?'] = False
         optimised_team['Vice Captain?'] = False
         optimised_team.iloc[0, optimised_team.columns.get_loc('Captain?')] = True
         if (optimised_team.shape[0] > 1): optimised_team.iloc[1, optimised_team.columns.get_loc('Vice Captain?')] = True
         optimised_team['Point Factor'] = optimised_team.apply(lambda row: 0 if not row['Selected?'] else 1 if not row['Captain?'] else 2, axis=1)
-        optimised_team = optimised_team.sort_values(['Field Position', optimise_team_on])
+        optimised_team = optimised_team.sort_values(['Field Position', optimise_sel_on+' Risk Adj'])
 
     return optimised_team
