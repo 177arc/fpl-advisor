@@ -1,2 +1,2 @@
 tensorflow>=2.3.0
-tensorflow-docs
+git+https://github.com/tensorflow/docs
