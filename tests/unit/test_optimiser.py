@@ -90,7 +90,7 @@ class TestOptimiser(unittest.TestCase):
             squad = optimiser.get_optimal_squad(players, '2-5-5-3', budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', exclude=['Ederson'], risk=1)
 
         self.__assert_team(squad, budget)
-        self.assertListEqual(list(squad['Name'].values), ['Alderweireld', 'van Dijk', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Ayew', 'Kane', 'Abraham', 'Adrián', 'Lloris', 'Kovacic', 'Mount', 'Bernardo Silva', 'David Silva', 'De Bruyne'])
+        self.assertListEqual(list(squad['Name'].values), ['Alderweireld', 'van Dijk', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Kane', 'Ayew', 'Abraham', 'Adrián', 'Lloris', 'Kovacic', 'Mount', 'Bernardo Silva', 'David Silva', 'De Bruyne'])
 
 
     def test_optimal_team_include_exclude(self):
