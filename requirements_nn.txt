@@ -1,2 +1,3 @@
 tensorflow>=2.3.0
 git+https://github.com/tensorflow/docs
+matplotlib>=2.2.2
