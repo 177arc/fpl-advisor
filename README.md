@@ -6,7 +6,9 @@
 **WARNING: Playing FPL can be highly adictive.**
 
 ## Purpose
-The purpose of the Advisor Jupyter notebook is to help with the selection of team members for the [Fantasy Premier League](https://fantasy.premierleague.com/) (FPL) by attempting to forecast how many points players will earn. It accesses the FPL API to download up-to-date stats, provides visual analysis and uses linear optimisation to recommend a team with the maximum expected points to improve the performance of your current team.
+The purpose of the Advisor Jupyter notebook is to help with the selection of team members for the [Fantasy Premier League](https://fantasy.premierleague.com/) (FPL) by attempting to forecast how many points players will earn.  
+It provides visual analysis and uses linear optimisation to recommend a team with the maximum expected points to improve the performance of your current team.
+The underlying data comes the [fpl-data project](https://github.com/177arc/fpl-data) which in turn gets it from the FPL API. The data is updated on an hourly basis.
 
 If you are not familiar with the Fantasy Premier League, you can watch this introduction:
 
@@ -15,14 +17,14 @@ alt="How to play FPL" width="600" height="400"/></a>
 
 ## Usage
 
-To use the FPL Advisor Jupyter notebook interactively, simply open the [advisor.ipynb](advisor.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) (it may take a bit of time to deploy the notebook). To simply view it, open the [advisor.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/advisor.ipynb).
+To use the FPL Advisor Jupyter notebook interactively, simply open the [advisor.ipynb](advisor.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) (it may take a bit of time to deploy the notebook).
 
 Alternatively, simply clone the repository and open advisor.ipynb locally.
 
 Here is a screenshot of the interactive chart for analysing players:
 [![FPL Advisor Visualisation](fpl_advisor.jpg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
 
-To explore the FPL data using a neural network, [train_nn_model.ipynb](train_nn_model.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=train_nn_model.ipynb). To simply view it, open the [train_nn_model.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/train_nn_model.ipynb).
+To explore the FPL data using a neural network, [train_nn_model.ipynb](train_nn_model.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=train_nn_model.ipynb).
 
 ## Contributing
 
