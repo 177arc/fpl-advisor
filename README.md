@@ -15,14 +15,14 @@ alt="How to play FPL" width="600" height="400"/></a>
 
 ## Usage
 
-To use the Jupyter notebook interactively, simply open the [advisor.ipynb notebook on Binder](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) (it may take a bit of time to deploy the notebook). To simply view it, open the [advisor.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/advisor.ipynb).
+To use the FPL Advisor Jupyter notebook interactively, simply open the [advisor.ipynb](advisor.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb) (it may take a bit of time to deploy the notebook). To simply view it, open the [advisor.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/advisor.ipynb).
 
 Alternatively, simply clone the repository and open advisor.ipynb locally.
 
 Here is a screenshot of the interactive chart for analysing players:
 [![FPL Advisor Visualisation](fpl_advisor.jpg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
 
-To explore the FPL data using a neural network, [train_nn_model.ipynb notebook on Binder](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=train_nn_model.ipynb). To simply view it, open the [train_nn_model.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/train_nn_model.ipynb).
+To explore the FPL data using a neural network, [train_nn_model.ipynb](train_nn_model.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=train_nn_model.ipynb). To simply view it, open the [train_nn_model.ipynb notebook on NBViewer](https://nbviewer.jupyter.org/github/177arc/fpl-advisor/blob/master/train_nn_model.ipynb).
 
 ## Contributing
 
