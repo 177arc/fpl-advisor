@@ -17,12 +17,6 @@ def get_next_gw_name(next_gw: int, ctx: Context) -> str:
     if next_gw == 1:
         return 'Next GW'
 
-    if next_gw == ctx.total_gws / 2 - ctx.next_gw:
-        return 'GWs To Half'
-
-    if next_gw == ctx.total_gws - ctx.next_gw:
-        return 'GWs To End'
-
     return f'Next {next_gw} GWs'
 
 

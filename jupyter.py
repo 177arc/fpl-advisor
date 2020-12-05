@@ -150,7 +150,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
     """
 
     def if_in_cols(df: DF, col: str, other):
-        return df[col] if col in df.columns else other
+        return df[col].fillna(other) if col in df.columns else other
 
     def in_team_trace(player_eps: DF) -> Scatter:
         return Scatter(
@@ -232,7 +232,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
     if player is not None and player != '':
         player_eps = player_eps[lambda df: df['Name'].str.lower().str.contains(player.lower())]
 
-    player_eps_formatted = player_eps.pipe(ctx.dd.format)
+    player_eps_formatted = player_eps.pipe(ctx.dd.format)[player_eps.columns].astype(str)
     player_eps['Label'] = (player_eps_formatted['Name and Short Team']
                            + ', ' + player_eps_formatted['Field Position']
                            + ', Exp. Points: ' + player_eps_formatted[f'Expected Points {horizon}']
@@ -242,7 +242,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                            + ', Stats Completeness: ' + player_eps_formatted['Fixtures Played To Fixture'] + f'/{ctx.player_fixtures_look_back}'
                            + ', ICT: ' + player_eps_formatted['ICT Index']
                            + '<br>Next: ' + player_eps_formatted[f'Fixtures Next 8 GWs'].map(lambda v: break_text(v, 4))
-                           + '<br>News: ' + player_eps_formatted['News And Date'].astype(str)
+                           + '<br>News: ' + player_eps_formatted['News And Date']
                            )
 
     colors = {'GK': 'rgba(31, 119, 180, 1)',
