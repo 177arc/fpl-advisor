@@ -21,7 +21,7 @@ def filter_gw(player_fixture_stats: DF, gw: int, ctx: Context) -> DF:
 def prep_gw(player_gw_eps_gw: DF, player_teams: DF, ep_column: str = 'Expected Points') -> DF:
     player_team_eps_gw = (player_gw_eps_gw
                           [['Fixture Total Points', ep_column, 'Current Cost', 'Stats Completeness Percent']]
-                          [lambda df: ~df[ep_column].isnull()]
+                          [lambda df: ~df[ep_column].isnull() & ~df['Current Cost'].isnull() & ~df['Stats Completeness Percent'].isnull()]
                           .merge(player_teams[['Name', 'Field Position Code', 'Field Position', 'Player Team Code', 'First Name', 'Last Name', 'ICT Index', 'Team Short Name', 'Name and Short Team', 'Minutes Percent']],
                                  left_index=True, right_index=True, suffixes=(False, False))
                           )
@@ -31,22 +31,24 @@ def prep_gw(player_gw_eps_gw: DF, player_teams: DF, ep_column: str = 'Expected P
 
 
 def get_optimal_team_exp(player_team_exp_gw: DF, ep_column: str = 'Expected Points',
-                         formation: str = '2-5-5-3', budget: float = 100.0) -> DF:
-    player_team_optimal = get_optimal_squad(player_team_exp_gw,
-                                            optimise_team_on=ep_column,
-                                            optimise_sel_on=ep_column,
-                                            formation=formation,
-                                            budget=budget)
+                         formation: Tuple[int] = (2, 5, 5, 3), budget: float = 100.0) -> DF:
+    player_team_optimal = get_optimal_team(player_team_exp_gw,
+                                           optimise_team_on=ep_column,
+                                           optimise_sel_on=ep_column,
+                                           formation=formation,
+                                           expens_player_count=11,
+                                           budget=budget)
     return player_team_optimal[['Fixture Total Points', ep_column, 'Point Factor', 'Selected?']]
 
 
 def get_optimal_team_act(players_history_fixtures_gw: DF,
-                         formation: str = '2-5-5-3', budget: float = 100.0) -> DF:
-    player_team_optimal_act = get_optimal_squad(players_history_fixtures_gw,
-                                                optimise_team_on='Fixture Total Points',
-                                                optimise_sel_on='Fixture Total Points',
-                                                formation=formation,
-                                                budget=budget)
+                         formation: Tuple[int] = (2, 5, 5, 3), budget: float = 100.0) -> DF:
+    player_team_optimal_act = get_optimal_team(players_history_fixtures_gw,
+                                               optimise_team_on='Fixture Total Points',
+                                               optimise_sel_on='Fixture Total Points',
+                                               formation=formation,
+                                               expens_player_count=11,
+                                               budget=budget)
     return player_team_optimal_act[['Fixture Total Points', 'Selected?']]
 
 
@@ -78,7 +80,7 @@ def pred_free_hit_gw(players_gw_team_eps: DF, player_teams: DF, team_budget: flo
            .reset_index()
            .pipe(filter_gw, gw, ctx)
            .pipe(prep_gw, player_teams, 'Expected Points')
-           .pipe(get_optimal_team_exp, 'Expected Points', '2-5-5-3', team_budget)
+           .pipe(get_optimal_team_exp, 'Expected Points', (2, 5, 5, 3), team_budget)
            .pipe(calc_team_points, 'Expected Points'))
     return S([gw, eps], index=['Game Week', 'Expected Points'])
 
@@ -88,7 +90,7 @@ def pred_bench_boost_gw(player_team_eps_user: DF, player_teams: DF, team_budget,
            .reset_index()
            .pipe(filter_gw, gw, ctx)
            .pipe(prep_gw, player_teams, 'Expected Points')
-           .pipe(get_optimal_team_exp, 'Expected Points', '2-5-5-3', team_budget)
+           .pipe(get_optimal_team_exp, 'Expected Points', (2, 5, 5, 3), team_budget)
            .pipe(calc_team_points, points_col='Expected Points', sel_only=False))
     return S([gw, eps], index=['Game Week', 'Expected Points'])
 
