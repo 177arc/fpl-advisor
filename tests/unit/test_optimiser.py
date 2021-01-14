@@ -76,7 +76,7 @@ class TestOptimiser(unittest.TestCase):
     def test_optimal_team_include_invalid_name(self):
         players = pd.read_csv(self.test_file).set_index('Player Code')
 
-        with self.assertRaisesRegex(ValueError, r'\[\'Marc Maier\'\] in include is not in the Name column of players_df.'):
+        with self.assertRaisesRegex(ValueError, r'\[\'Marc Maier\'\] in include is not in the Name column of players.'):
             optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=100.0, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', include=['Marc Maier'])
 
     def test_optimal_team_exclude(self):
@@ -97,6 +97,17 @@ class TestOptimiser(unittest.TestCase):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             team = optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', include=['Mané'], exclude=['Ederson'], risk=1)
+
+        self.__assert_team(team, budget)
+        self.assertListEqual(list(team['Name'].values), ['Kelly', 'Alderweireld', 'Walker', 'Ward', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Whiteman', 'Lloris', 'Kovacic', 'Mount', 'David Silva', 'Mané', 'De Bruyne'])
+
+    def test_optimal_team_include_exclude_different_capitalisation(self):
+        players = pd.read_csv(self.test_file).set_index('Player Code')
+
+        budget=100.0
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            team = optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', include=['mAné'], exclude=['EDErson'], risk=1)
 
         self.__assert_team(team, budget)
         self.assertListEqual(list(team['Name'].values), ['Kelly', 'Alderweireld', 'Walker', 'Ward', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Whiteman', 'Lloris', 'Kovacic', 'Mount', 'David Silva', 'Mané', 'De Bruyne'])
@@ -123,13 +134,21 @@ class TestOptimiser(unittest.TestCase):
             warnings.simplefilter("ignore")
             team = optimiser.get_optimal_team(players, formation=(2, 5, 5, 3), expens_player_count=11, budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', risk=1, recommend=1)
 
-        self.assertEqual(team.shape[0], 15, msg='Row count must be 15.')
+        self.assertEqual(team.shape[0], 16, msg='Row count must be 16.')
 
-        position_counts = team[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
+        new_team = team[lambda df: df['Recommendation'] != 'Transfer out']
+        position_counts = new_team[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
         self.assertDictEqual(position_counts, {'DEF': 5, 'FWD': 3, 'GK': 2, 'MID': 5}, msg='Team composition incorrect.')
-        self.assertListEqual(list(team['Name'].values), ['Kelly', 'Matip', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
-        self.assertLessEqual(team['Current Cost'].sum(), budget)
-        self.assertGreaterEqual(team['Current Cost'].sum(), budget*0.95)
+        self.assertListEqual(list(new_team['Name'].values), ['Kelly', 'Matip', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Ayew', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
+        self.assertLessEqual(new_team['Current Cost'].sum(), budget)
+        self.assertGreaterEqual(new_team['Current Cost'].sum(), budget*0.95)
+
+        out_players = team[lambda df: df['Recommendation'] == 'Transfer out']
+        self.assertListEqual(list(out_players['Name'].values),  ['Alderweireld'])
+
+        in_players = team[lambda df: df['Recommendation'] == 'Transfer in']
+        self.assertListEqual(list(in_players['Name'].values), ['van Aanholt'])
+
 
     def test_optimal_team_expens_player_count_too_many(self):
         players = pd.read_csv(self.test_file).set_index('Player Code')
@@ -141,7 +160,7 @@ class TestOptimiser(unittest.TestCase):
     def test_optimal_team_exclude_invalid_name(self):
         players = pd.read_csv(self.test_file).set_index('Player Code')
 
-        with self.assertRaisesRegex(ValueError, r'\[\'Marc Maier\'\] in exclude is not in the Name column of players_df.'):
+        with self.assertRaisesRegex(ValueError, r'\[\'Marc Maier\'\] in exclude is not in the Name column of players.'):
             optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=100.0, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', exclude=['Marc Maier'])
 
 
@@ -149,7 +168,7 @@ class TestOptimiser(unittest.TestCase):
         players = pd.read_csv(self.test_file).set_index('Player Code')
         players.at[526, 'Current Cost'] = np.nan
 
-        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Current Cost column of the players_df data frame is NaN. The Current Cost must be set for all players.'):
+        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Current Cost column of the players data frame is NaN. The Current Cost must be set for all players.'):
             optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=100.0, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW')
 
 
@@ -157,7 +176,7 @@ class TestOptimiser(unittest.TestCase):
         players = pd.read_csv(self.test_file).set_index('Player Code')
         players.at[526, 'Expected Points Next 5 GWs'] = np.nan
 
-        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Expected Points Next 5 GWs column of the players_df data frame is NaN. The Expected Points Next 5 GWs must be set for all players.'):
+        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Expected Points Next 5 GWs column of the players data frame is NaN. The Expected Points Next 5 GWs must be set for all players.'):
             optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=100.0, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW')
 
 
@@ -165,7 +184,7 @@ class TestOptimiser(unittest.TestCase):
         players = pd.read_csv(self.test_file).set_index('Player Code')
         players.at[526, 'Expected Points Next GW'] = np.nan
 
-        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Expected Points Next GW column of the players_df data frame is NaN. The Expected Points Next GW must be set for all players.'):
+        with self.assertRaisesRegex(ValueError, r'At least on of the entries in the Expected Points Next GW column of the players data frame is NaN. The Expected Points Next GW must be set for all players.'):
             optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=100.0, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW')
 
 
@@ -177,13 +196,21 @@ class TestOptimiser(unittest.TestCase):
             warnings.simplefilter("ignore")
             team = optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW', recommend=2)
 
-        self.assertEqual(team.shape[0], 15, msg='Row count must be 15.')
+        self.assertEqual(team.shape[0], 17, msg='Row count must be 17.')
 
-        position_counts = team[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
+        new_team = team[lambda df: df['Recommendation'] != 'Transfer out']
+        position_counts = new_team[['Field Position', 'Name']].groupby('Field Position').count()['Name'].to_dict()
         self.assertDictEqual(position_counts, {'DEF': 5, 'FWD': 3, 'GK': 2, 'MID': 5}, msg='Team composition incorrect.')
-        self.assertListEqual(list(team['Name'].values), ['Kelly', 'Alderweireld', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Origi', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
-        self.assertLessEqual(team['Current Cost'].sum(), budget)
-        self.assertGreaterEqual(team['Current Cost'].sum(), budget*0.95)
+        self.assertListEqual(list(new_team['Name'].values), ['Kelly', 'Alderweireld', 'Ward', 'van Aanholt', 'Alexander-Arnold', 'Origi', 'Abraham', 'Firmino', 'Lloris', 'Ederson', 'Kovacic', 'Son', 'Mount', 'David Silva', 'De Bruyne'])
+        self.assertLessEqual(new_team['Current Cost'].sum(), budget)
+        self.assertGreaterEqual(new_team['Current Cost'].sum(), budget*0.95)
+
+        out_players = team[lambda df: df['Recommendation'] == 'Transfer out']
+        self.assertListEqual(list(out_players['Name'].values),  ['Matip', 'Ayew'])
+
+        in_players = team[lambda df: df['Recommendation'] == 'Transfer in']
+        self.assertListEqual(list(in_players['Name'].values), ['van Aanholt', 'Origi'])
+
 
 
     def test_player_formation_invalid(self):
@@ -208,7 +235,7 @@ class TestOptimiser(unittest.TestCase):
         budget=70.0
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            with self.assertRaisesRegex(Exception, f'An optimal solution within the budget {budget} could not be found.'):
+            with self.assertRaisesRegex(Exception, f'An optimal solution within the budget could not be found.'):
                 optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW')
 
 

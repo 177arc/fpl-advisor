@@ -55,8 +55,8 @@ def get_optimal_team_act(players_history_fixtures_gw: DF,
 def calc_team_points(player_team: DF, points_col: str = 'Fixture Total Points', sel_only: bool = True) -> float:
     player_team = player_team.copy()
 
-    if sel_only:
-        player_team = player_team[player_team['Selected?']]
+    if not sel_only:
+        player_team['Point Factor'] = player_team['Point Factor'].map(lambda v: max(v, 1)) # Make sure that factor is 1 for not selected team members.
 
     player_team['Points'] = player_team[points_col]
 
@@ -81,7 +81,7 @@ def pred_free_hit_gw(players_gw_team_eps: DF, player_teams: DF, team_budget: flo
            .pipe(filter_gw, gw, ctx)
            .pipe(prep_gw, player_teams, 'Expected Points')
            .pipe(get_optimal_team_exp, 'Expected Points', (2, 5, 5, 3), team_budget)
-           .pipe(calc_team_points, 'Expected Points'))
+           .pipe(calc_team_points, points_col='Expected Points'))
     return S([gw, eps], index=['Game Week', 'Expected Points'])
 
 def pred_bench_boost_gw(player_team_eps_user: DF, player_teams: DF, team_budget, gw: int, ctx: Context) -> S:
