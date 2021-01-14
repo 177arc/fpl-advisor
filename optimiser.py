@@ -144,7 +144,7 @@ def __optimise_team(players_df: DF, min_formation: Tuple[int] = (2, 5, 5, 3), ma
     status = fpl_problem.solve()
 
     if LpStatus[status] != 'Optimal':
-        raise Exception(f'An optimal solution within the budget could not be found.')
+        raise Exception(f'An optimal solution within the max_budget could not be found.')
 
     # Filter the players data frame using the selected player ids.
     player_ids = [p for p in players if x[p].value() != 0]
@@ -173,7 +173,7 @@ def __get_optimal_biased_team_recommend(players: DF, formation: Tuple[int], expe
     cheap_player_names = tuple(cheap_team['Name'].values)
     cheap_player_cost = cheap_team['Current Cost'].sum()
 
-    # Get the strongest team with budget reduced what we need to reserve for the weak part of the team.
+    # Get the strongest team with max_budget reduced what we need to reserve for the weak part of the team.
     opt_team = (__optimise_team(players, expens_team_formation, expens_team_formation, expens_player_count, budget - cheap_player_cost, optimise_team_on, recommend, include, exclude + cheap_player_names)
                 .append(cheap_team))
 
@@ -187,11 +187,11 @@ def __get_optimal_biased_team_recommend(players: DF, formation: Tuple[int], expe
 
 def __get_optimal_biased_team(players: DF, formation: Tuple[int], expens_player_count: int, budget: float,
                               optimise_team_on: str, include: Tuple[str], exclude: Tuple[str]) -> DF:
-    # If we need to bias budget to a proportion of the team, first work out how much budget we need to reserve for the weak part of the team.
+    # If we need to bias max_budget to a proportion of the team, first work out how much max_budget we need to reserve for the weak part of the team.
     cheap_player_count = sum(formation) - expens_player_count
     cheap_player_cost = (players.groupby('Field Position')['Current Cost'].min().max()) * cheap_player_count
 
-    # Get the strongest team with budget reduced what we need to reserve for the weak part of the team.
+    # Get the strongest team with max_budget reduced what we need to reserve for the weak part of the team.
     opt_team = __optimise_team(players, __MIN_SEL_FORMATION, __MAX_SEL_FORMATION, expens_player_count, budget - cheap_player_cost, optimise_team_on, None, include, exclude)
 
     if cheap_player_cost > 0:
@@ -199,7 +199,7 @@ def __get_optimal_biased_team(players: DF, formation: Tuple[int], expens_player_
         opt_team_formation = __get_formation(opt_team)
         cheap_team_formation = tuple(np.subtract(formation, opt_team_formation))
 
-        # Get the best team we can get with the budget and formation of the weak team.
+        # Get the best team we can get with the max_budget and formation of the weak team.
         cheap_team = __optimise_team(players[~players.index.isin(opt_team.index.values)], cheap_team_formation, cheap_team_formation,
                                      sum(formation) - expens_player_count, cheap_player_cost, optimise_team_on, None, include, exclude)
 
@@ -246,7 +246,7 @@ def get_optimal_team(players: DF, formation: Tuple[int] = (2, 5, 5, 3), expens_p
                      include: Tuple[str] = (), exclude: Tuple[str] = (), risk: float = 0.2) -> DF:
     """
     For the given formation and player data frame tries to maximise the total in the given column so that
-    the current cost is with the given budget. It also adds the ``Captain/Vice Captain`` column to indicate whether a specific player
+    the current cost is with the given max_budget. It also adds the ``Captain/Vice Captain`` column to indicate whether a specific player
     should be captain or vice captain.
 
     Args:
@@ -268,7 +268,7 @@ def get_optimal_team(players: DF, formation: Tuple[int] = (2, 5, 5, 3), expens_p
             If risk is between 0 and 1 the completeness of the data is take into account in a way that is proportionate to the risk.
 
     Returns:
-        The players from ``players`` with the highest value in the ``optimise_on`` column for the given formation that is within the budget.
+        The players from ``players`` with the highest value in the ``optimise_on`` column for the given formation that is within the max_budget.
     """
 
     def valid_column_not_nan(df, df_name, col_name):
@@ -330,8 +330,8 @@ def get_optimal_team(players: DF, formation: Tuple[int] = (2, 5, 5, 3), expens_p
     optimised_new_team = optimised_team.pipe(get_new_team)
 
     # Check whether a valid solution could be found
-    #if optimised_new_team['Current Cost'].sum() > budget + 0.01:
-    #    raise Exception(f'An optimal solution within the budget could not be found.')
+    #if optimised_new_team['Current Cost'].sum() > max_budget + 0.01:
+    #    raise Exception(f'An optimal solution within the max_budget could not be found.')
 
     if optimise_sel_on is not None:
         # Then select the best players from the team to play, i.e. the best valid formation

@@ -414,7 +414,7 @@ def display_optimal_team(players_df: DF, ctx: Context, formation: Tuple[int] = (
                          include: Tuple[str] = (), exclude: Tuple[str] = (), risk: float = 0.2) -> DF:
     """
     For the given formation and player data frame tries to maximise the total in the given column so that
-    the current cost is with the given budget. It also adds the ``Captain/Vice Captain`` column to indicate whether a specific player
+    the current cost is with the given max_budget. It also adds the ``Captain/Vice Captain`` column to indicate whether a specific player
     should be captain or vice captain.
 
     Args:
@@ -436,14 +436,14 @@ def display_optimal_team(players_df: DF, ctx: Context, formation: Tuple[int] = (
             If risk is between 0 and 1 the completeness of the data is take into account in a way that is proportionate to the risk.
 
     Returns:
-        The players from ``players`` with the highest value in the ``optimise_on`` column for the given formation that is within the budget.
+        The players from ``players`` with the highest value in the ``optimise_on`` column for the given formation that is within the max_budget.
     """
     new_team = (get_optimal_team(players_df,
                                  optimise_team_on=optimise_team_on,  # Name of the column to use for optimising the whole team.
                                  optimise_sel_on=optimise_sel_on,  # Name of the column to use for optimising the selection of the team.
                                  formation=formation,  # Formation of the team in format GKP-DEF-MID-FWD.
                                  expens_player_count=expens_player_count,  # Number of expensive players. A number between 14 and 11 will bias the team towards more expensive players.
-                                 budget=budget,  # Maximum budget available for optimising the team.
+                                 budget=budget,  # Maximum max_budget available for optimising the team.
                                  include=include,  # List of player names that must be in the team, e.g. ['De Bruyne', 'Mané']
                                  exclude=exclude,  # List of player names that must NOT be in the team.
                                  recommend=recommend,
@@ -460,7 +460,7 @@ def get_horizons(player_gw_next_eps_ext: DF) -> List[str]:
             + [col.replace('Expected Points ', '') for col in player_gw_next_eps_ext.columns if col.startswith('Expected Points GW ')])
 
 
-def show_opt_team(player_gw_next_eps_ext: DF, budget: float, ctx: Context):
+def show_opt_team(player_gw_next_eps_ext: DF, max_budget: float, ctx: Context, def_budget: float = None):
     def get_message(optimise_team_on, optimise_sel_on, budget, expens_player_count, include, exclude, risk, recommend) -> None:
         message = '<span style="margin-right: 30px">'
 
@@ -527,10 +527,13 @@ def show_opt_team(player_gw_next_eps_ext: DF, budget: float, ctx: Context):
     has_in_team = 'In Team?' in player_gw_next_eps_ext.columns
     horizons = get_horizons(player_gw_next_eps_ext)
 
+    if def_budget is None:
+        def_budget = max_budget
+
     # Define the selector controls
     opt_for_dropdown = Dropdown(description='Optimise for', options=horizons, value=ctx.def_next_gws)
     sel_for_dropdown = Dropdown(description='Select for', options=horizons)
-    budget_slider = FloatSlider(value=budget, min=0, max=budget, step=0.1, description='Budget', continuous_update=True, readout_format='.1f')
+    budget_slider = FloatSlider(value=def_budget, min=0, max=max_budget, step=0.1, description='Budget', continuous_update=True, readout_format='.1f')
     expens_player_label = Label('Expensive players')
     expens_player_slider = IntSlider(value=15, min=1, max=15, step=1, continuous_update=True, readout_format='.0f')
     include_text = Text(description='Include', placeholder='Comma separated player names')

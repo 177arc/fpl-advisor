@@ -235,7 +235,7 @@ class TestOptimiser(unittest.TestCase):
         budget=70.0
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            with self.assertRaisesRegex(Exception, f'An optimal solution within the budget could not be found.'):
+            with self.assertRaisesRegex(Exception, f'An optimal solution within the max_budget could not be found.'):
                 optimiser.get_optimal_team(players, (2, 5, 5, 3), budget=budget, optimise_team_on='Expected Points Next 5 GWs', optimise_sel_on='Expected Points Next GW')
 
 
