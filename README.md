@@ -22,10 +22,10 @@ To use the FPL Advisor Jupyter notebook interactively, simply open the [advisor.
 Alternatively, simply clone the repository and open advisor.ipynb locally.
 
 Here is a screenshot of the interactive chart for analysing players:
-[![FPL Advisor Visualisation](fpl_advisor.jpg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
+[![FPL Advisor Visualisation](fpl_advisor.png)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
 
 And you can use the optimiser for selecting the best players for a wildcard/free hit or recommending transfers for your team:  
-[![FPL Advisor Visualisation](optimiser.png)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
+[![FPL Advisor Optimiser](optimiser.png)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=advisor.ipynb)
 
 To explore the FPL data using a neural network, [train_nn_model.ipynb](train_nn_model.ipynb) notebook on [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/177arc/fpl-advisor/master?filepath=train_nn_model.ipynb).
 

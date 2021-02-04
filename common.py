@@ -5,7 +5,10 @@ This module contains shared helper functions.
 import pandas as pd
 import numpy as np
 from datadict.jupyter import DataDict
-
+import asyncio
+from time import time
+from ipywidgets import IntProgress, HTML, VBox
+from IPython.display import display
 
 # Define type aliases
 DF = pd.DataFrame
@@ -78,3 +81,144 @@ def value_or_default(value, default=np.nan):
     """
     # noinspection PyTypeChecker
     return default if value is None or isinstance(value, str) and value == '' or not isinstance(value, str) and np.isnan(value) else value
+
+
+class Timer:
+    def __init__(self, timeout, callback):
+        self._timeout = timeout
+        self._callback = callback
+        self._task = asyncio.ensure_future(self._job())
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        self._callback()
+
+    def cancel(self):
+        self._task.cancel()
+
+
+def throttle(wait: float):
+    """
+    Decorator that prevents a function from being called more than once every wait period.
+
+    Args:
+        wait: Wait period.
+    """
+
+    def decorator(fn):
+        def throttled(*args, **kwargs):
+            nonlocal new_args, new_kwargs, time_of_last_call, scheduled
+
+            def call_it():
+                nonlocal new_args, new_kwargs, time_of_last_call, scheduled
+                time_of_last_call = time()
+                fn(*new_args, **new_kwargs)
+                scheduled = False
+
+            time_since_last_call = time() - time_of_last_call
+            new_args = args
+            new_kwargs = kwargs
+            if not scheduled:
+                new_wait = max(0, wait - time_since_last_call)
+                Timer(new_wait, call_it)
+                scheduled = True
+
+        try:
+            time_of_last_call = 0
+            scheduled = False
+            new_args, new_kwargs = None, None
+        except:
+            print('I')
+
+        return throttled
+
+    return decorator
+
+
+def debounce(wait: float):
+    """
+    Decorator that will postpone a function's execution until after `wait` seconds have elapsed since the last time it was invoked.
+
+    Args:
+        wait: Wait period.
+    """
+
+    def decorator(fn):
+        timer = None
+
+        # noinspection PyUnresolvedReferences
+        def debounced(*args, **kwargs):
+            nonlocal timer
+
+            def call_it():
+                fn(*args, **kwargs)
+
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+
+        return debounced
+
+    return decorator
+
+def get_player_stats(player: S, ctx: Context) -> DF:
+    next_gws = [list(ctx.next_gw_counts)[0], ctx.def_next_gws, list(ctx.next_gw_counts)[-1]]
+    return DF(player).T[[f'Expected Points {next_gw}' for next_gw in next_gws] + ['Current Cost', 'Total Points', 'ICT Index', 'Chance Avail This GW', 'Minutes Played', 'Minutes Percent']]
+
+
+def log_progress(sequence, every=None, size=None, name='Items') -> object:
+    """
+    Shows a progress bar with labels in a Jupyter notebook (see https://github.com/kuk/log-progress).
+    Args:
+        sequence: The list to iterate over. Each element in the list can cause a progress bar update but the frequency depends on the every parameter.
+        every: The frequency of the progress bar update. E.g. update progress bar after every two items.
+        size: The number of items in the list.
+        name: The description to show.
+
+    Returns:
+
+    """
+
+    is_iterator = False
+    if size is None:
+        try:
+            size = len(sequence)
+        except TypeError:
+            is_iterator = True
+    if size is not None:
+        if every is None:
+            if size <= 200:
+                every = 1
+            else:
+                every = int(size / 200)  # every 0.5%
+    else:
+        assert every is not None, 'sequence is iterator, set every'
+
+    if is_iterator:
+        progress = IntProgress(min=0, max=1, value=1)
+        progress.bar_style = 'info'
+    else:
+        progress = IntProgress(min=0, max=size, value=0)
+
+    label = HTML()
+    box = VBox(children=[label, progress])
+    display(box)
+
+    index = 0
+    try:
+        for index, record in enumerate(sequence, 1):
+            if index == 1 or index % every == 0:
+                if is_iterator:
+                    label.value = f'{name}: {record} / ?'
+                else:
+                    progress.value = index
+                    label.value = f'{name}: {record} / {sequence[-1]}'
+
+            yield record
+    except:
+        progress.bar_style = 'danger'
+        raise
+    else:
+        progress.bar_style = 'success'
+        progress.value = index
+        label.value = f'{name}: {record} / {sequence[-1]}'
