@@ -129,15 +129,15 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
     def get_player_eps_chart(player_eps: DF) -> DF:
         return (player_eps[
                     ['Name', 'Name and Short Team', 'Long Name', 'Team Name', 'Field Position', 'Current Cost', 'Total Points', 'Minutes Percent',
-                     'News And Date', 'ICT Index', 'Minutes Played', 'Threat To Fixture', 'Influence To Fixture',
+                     'News And Date', 'ICT Index', 'Minutes Played', 'Avg Threat Recent Fixtures', 'Avg Influence Recent Fixtures',
                      'Chance Avail This GW', 'Stats Completeness Percent', 'Profile Picture', 'Team Last Updated', 'Player Last Updated']
                     + [col for col in player_eps.columns if col.startswith('Expected Points ') or col.startswith('Fixtures ')]
                     + (['In Team?'] if 'In Team?' in player_eps.columns else [])]
                 # Add visualisation columns that need to be calculated on the unfiltered set.
                 .assign(**{'Opacity': lambda df: if_in_cols(df, 'Stats Completeness Percent', 100) * (1 - MIN_OPACITY) / 100 + MIN_OPACITY})
                 .assign(**{'Size': lambda df: np.maximum(np.where(df['Field Position'] != 'GK',
-                                                                  df.groupby('Field Position')['Threat To Fixture'].transform(lambda x: x / x.max() * MAX_POINT_SIZE),
-                                                                  df['Influence To Fixture'] / df['Influence To Fixture'].max() * MAX_POINT_SIZE), MIN_POINT_SIZE)}))
+                                                                  df.groupby('Field Position')['Avg Threat Recent Fixtures'].transform(lambda x: x / x.max() * MAX_POINT_SIZE),
+                                                                  df['Avg Influence Recent Fixtures'] / df['Avg Influence Recent Fixtures'].max() * MAX_POINT_SIZE), MIN_POINT_SIZE)}))
 
     def get_labels(player_eps_chart: DF) -> S:
         player_eps_formatted = player_eps_chart.pipe(ctx.dd.format)[player_eps_chart.columns].astype(str)
@@ -148,8 +148,9 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                 + '<br>Exp. Points: ' + player_eps_formatted[f'Expected Points {horizon}']
                 + ', Total Points: ' + player_eps_formatted['Total Points']
                 + '<br>Minutes Percent: ' + player_eps_formatted['Minutes Percent']
-                + ', Stats Completeness (Recent Fixtures): ' + player_eps_formatted['Fixtures Played To Fixture'] + f'/{ctx.player_fixtures_look_back}'
-                + '<br>Threat (Recent Fixtures): ' + player_eps_formatted['Threat To Fixture']
+                + ', Stats Completeness (Recent Fixtures): ' + player_eps_formatted['Fixtures Played Recent Fixtures'] + f'/{ctx.player_fixtures_look_back}'
+                + np.where(player_eps_formatted['Field Position'] != 'GK', '<br>Average Threat (Recent Fixtures): ' + player_eps_formatted['Avg Threat Recent Fixtures'],
+                    '<br>Average Influence (Recent Fixtures): ' + player_eps_formatted['Avg Influence Recent Fixtures'])
                 + ', ICT: ' + player_eps_formatted['ICT Index']
                 + '<br>Next: ' + player_eps_formatted[f'Fixtures Next 8 GWs'].map(lambda v: break_text(v, 4))
                 + '<br>News: ' + player_eps_formatted['News And Date']

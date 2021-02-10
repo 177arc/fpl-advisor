@@ -7,7 +7,7 @@ from ipywidgets import HTML, HBox, VBox, Output, Layout, Dropdown, Text, FloatSl
 from IPython.display import display
 
 def add_stats_compl(df: DF, ctx: Context, digits: int = 0) -> DF:
-    return (df.assign(**{'Stats Completeness': lambda df: df['Fixtures Played To Fixture']
+    return (df.assign(**{'Stats Completeness': lambda df: df['Fixtures Played Recent Fixtures']
                       .map(lambda v: ('{:.' + str(digits) + 'f}/{:.0f}').format(v, ctx.player_fixtures_look_back))}))
 
 
@@ -98,7 +98,7 @@ def summarise_team(team: DF, team_label: str, other_team: Optional[DF], other_te
                 .to_frame()
                 .T
                 .pipe(add_stats_compl, ctx, 1)
-                .drop(columns=['Fixtures Played To Fixture']))
+                .drop(columns=['Fixtures Played Recent Fixtures']))
 
     expected_points_cols = get_expected_points_cols_or_def(expected_points_cols, ctx)
 
@@ -107,7 +107,7 @@ def summarise_team(team: DF, team_label: str, other_team: Optional[DF], other_te
 
     aggr = {'Current Cost': 'sum'}
     aggr = {**aggr, **{col: 'sum' for col in expected_points_cols}}
-    aggr = {**aggr, **{'Fixtures Played To Fixture': 'mean'}}
+    aggr = {**aggr, **{'Fixtures Played Recent Fixtures': 'mean'}}
 
     team_summary = DF()
     with warnings.catch_warnings():
