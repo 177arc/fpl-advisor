@@ -7,6 +7,7 @@ from IPython.display import display
 from typing import Callable
 import traceback
 import urllib
+from collections import OrderedDict
 
 pio.templates.default = 'plotly_white'
 
@@ -16,6 +17,7 @@ MIN_POINT_SIZE = 5
 MIN_OPACITY = 0.4
 POSITION_COLORS = {'GK': 'rgba(31, 119, 180, 1)', 'DEF': 'rgba(255, 127, 14, 1)', 'MID': 'rgba(44, 160, 44, 1)', 'FWD': 'rgba(214, 39, 40, 1)'}
 FDR_COLOR_SCALE = [[0.0, 'rgb(1, 252, 122)'], [0.33, 'rgb(231, 231, 231)'], [0.66, 'rgb(255, 23, 81)'], [1.0, 'rgb(128, 7, 45)']]
+
 
 def interactive(func: Callable, arg_widgets_map: dict) -> Widget:
     """
@@ -103,12 +105,12 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
             player = None
             player_code = None
             for ind in points.point_inds:
-                player = player_eps.iloc[ind]
-                player_code = player_eps.index[ind]
+                player = player_eps_chart.iloc[ind]
+                player_code = player_eps_chart.index[ind]
 
             if player is not None:
                 player_gw_eps = players_gw_eps.loc[player_code]
-                detail.children = tuple([display_player(player, player_gw_eps, ctx)])
+                detail.children = tuple([display_player(player, player_gw_eps, horizon, ctx)])
             else:
                 detail.children = tuple([])
 
@@ -129,8 +131,9 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
     def get_player_eps_chart(player_eps: DF) -> DF:
         return (player_eps[
                     ['Name', 'Name and Short Team', 'Long Name', 'Team Name', 'Field Position', 'Current Cost', 'Total Points', 'Minutes Percent',
-                     'News And Date', 'ICT Index', 'Minutes Played', 'Avg Threat Recent Fixtures', 'Avg Influence Recent Fixtures',
-                     'Chance Avail This GW', 'Stats Completeness Percent', 'Profile Picture', 'Team Last Updated', 'Player Last Updated']
+                     'News And Date', 'Minutes Played', 'Total Points Recent Fixtures', 'Avg Total Points Recent Fixtures', 'Avg ICT Index Recent Fixtures',
+                     'Avg Influence Recent Fixtures', 'Avg Creativity Recent Fixtures', 'Avg Threat Recent Fixtures', 'ICT Index', 'Influence', 'Creativity', 'Threat',
+                     'Chance Avail This GW', 'Stats Completeness', 'Stats Completeness Percent', 'Profile Picture', 'Team Last Updated', 'Player Last Updated']
                     + [col for col in player_eps.columns if col.startswith('Expected Points ') or col.startswith('Fixtures ')]
                     + (['In Team?'] if 'In Team?' in player_eps.columns else [])]
                 # Add visualisation columns that need to be calculated on the unfiltered set.
@@ -139,8 +142,14 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                                                                   df.groupby('Field Position')['Avg Threat Recent Fixtures'].transform(lambda x: x / x.max() * MAX_POINT_SIZE),
                                                                   df['Avg Influence Recent Fixtures'] / df['Avg Influence Recent Fixtures'].max() * MAX_POINT_SIZE), MIN_POINT_SIZE)}))
 
+    def get_player_eps_formatted(player_eps_chart: DF) -> DF:
+        return (player_eps_chart
+                .pipe(ctx.dd.format)
+                [player_eps_chart.columns]
+                .astype(str))
+
     def get_labels(player_eps_chart: DF) -> S:
-        player_eps_formatted = player_eps_chart.pipe(ctx.dd.format)[player_eps_chart.columns].astype(str)
+        player_eps_formatted = player_eps_chart.pipe(get_player_eps_formatted)
 
         return (player_eps_formatted['Name and Short Team']
                 + ', ' + player_eps_formatted['Field Position']
@@ -148,9 +157,9 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                 + '<br>Exp. Points: ' + player_eps_formatted[f'Expected Points {horizon}']
                 + ', Total Points: ' + player_eps_formatted['Total Points']
                 + '<br>Minutes Percent: ' + player_eps_formatted['Minutes Percent']
-                + ', Stats Completeness (Recent Fixtures): ' + player_eps_formatted['Fixtures Played Recent Fixtures'] + f'/{ctx.player_fixtures_look_back}'
-                + np.where(player_eps_formatted['Field Position'] != 'GK', '<br>Average Threat (Recent Fixtures): ' + player_eps_formatted['Avg Threat Recent Fixtures'],
-                    '<br>Average Influence (Recent Fixtures): ' + player_eps_formatted['Avg Influence Recent Fixtures'])
+                + f', Stats Completeness (Recent {ctx.player_fixtures_look_back} Fixtures): ' + player_eps_formatted['Stats Completeness']
+                + np.where(player_eps_formatted['Field Position'] != 'GK', f'<br>Average Threat (Recent {ctx.player_fixtures_look_back} Fixtures): ' + player_eps_formatted['Avg Threat Recent Fixtures'],
+                           f'<br>Avg Influence (Recent {ctx.player_fixtures_look_back} Fixtures): ' + player_eps_formatted['Avg Influence Recent Fixtures'])
                 + ', ICT: ' + player_eps_formatted['ICT Index']
                 + '<br>Next: ' + player_eps_formatted[f'Fixtures Next 8 GWs'].map(lambda v: break_text(v, 4))
                 + '<br>News: ' + player_eps_formatted['News And Date']
@@ -184,7 +193,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
     chart = FigureWidget(
         traces,
         layout={
-            'title': f'Expected Points from Game Week {ctx.next_gw} for {horizon}' if horizon != 'Next GW' else f'Expected Points for Game Week {ctx.next_gw}' ,
+            'title': f'Expected Points from Game Week {ctx.next_gw} for {horizon}' if horizon != 'Next GW' else f'Expected Points for Game Week {ctx.next_gw}',
             'xaxis': dict(title='Current Cost (lower is better)', showspikes=True, range=[min_cost, max_cost]),
             'yaxis': dict(title=f'Expected Points {horizon} (higher is better)', showspikes=True, range=[min_eps, max_eps]),
             'hovermode': 'closest',
@@ -205,7 +214,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
 
     out = Output()
     detail = VBox([])
-    chart_and_detail = VBox([message, out, chart, detail, data_quality])
+    chart_and_detail = VBox([message, out, chart, data_quality, detail])
 
     return chart_and_detail
 
@@ -235,22 +244,54 @@ def show_eps_vs_cost(player_gw_next_eps_ext: DF, players_gw_team_eps_ext: DF, te
     return VBox([selectors, out])
 
 
-def display_player(player: S, player_gw_eps: DF, ctx: Context) -> Widget:
+def display_player(player: S, player_gw_eps: DF, horizon: str, ctx: Context) -> Widget:
+    def display_df(df_output: pd.DataFrame):
+        df_style = df_output.style
+        df_style = df_style.hide_index()
+
+        out_df = Output()
+        with out_df:
+            display(df_style)
+
+        return out_df
+
     def display_header(player: S) -> Widget:
         return HTML(
-            f'<h1>{player["Long Name"]} - {player["Team Name"]} - {player["Field Position"]}</h1>')
+            f'<h1>{player["Long Name"]} - {player["Team Name"]} - {player["Field Position"]} - {player["Current Cost"]}</h1>')
+
+    def get_player_fwd_stats(player: S, ctx: Context) -> DF:
+        next_gws = list(OrderedDict.fromkeys([list(ctx.next_gw_counts)[0], horizon, list(ctx.next_gw_counts)[-1]]))
+
+        return (  # Create data frame from series
+            DF(player).T
+                # Format columns
+                .pipe(ctx.dd.format)
+                # Select columns
+            [['News And Date'] + [f'Expected Points {next_gw}' for next_gw in next_gws] + ['Stats Completeness']]
+                # Create multi-level colums for Expected Points
+                .pipe(lambda df: df.T.set_index(
+                pd.MultiIndex.from_tuples([('Expected Points' if 'Expected Points' in col else '',
+                                            col.replace('Expected Points ', '')) for col in df.columns]))
+                      .T))
 
     def display_stats(player: S) -> Widget:
-        return VBox([HTML(
-            f'<h3>Stats</h3>'),
+        return VBox([
+            HTML(f'<h3>Forward Looking</h3>'),
             player
-                .pipe(get_player_stats, ctx)
+                .pipe(get_player_fwd_stats, ctx)
+                .pipe(display_df),
+            HTML(f'<h3>Recent {ctx.player_fixtures_look_back} Fixtures</h3>'),
+            player
+                .pipe(DF).T[['Total Points Recent Fixtures', 'Fixtures Played Recent Fixtures',
+                             'Avg Total Points Recent Fixtures', 'Avg ICT Index Recent Fixtures', 'Avg Influence Recent Fixtures',
+                             'Avg Creativity Recent Fixtures', 'Avg Threat Recent Fixtures']]
+                .pipe(ctx.dd.format)
+                .pipe(lambda df: df.rename(columns={x: x.replace(' Recent Fixtures', '') for x in df.columns}))
+                .pipe(display_df),
+            HTML(f'<h3>From Start of Season</h3>'),
+            player
+                .pipe(DF).T[['Total Points', 'Minutes Played', 'Minutes Percent', 'ICT Index', 'Influence', 'Creativity', 'Threat']]
                 .pipe(ctx.dd.display, footer=False, descriptions=False, index=False)])
-
-    def display_news(player: S) -> Widget:
-        return HTML(value=
-                            f'<h3>Availability News</h3>'
-                            f'<p>{player["News And Date"]}</p>')
 
     def display_research(player: S) -> Widget:
         player_query = urllib.parse.quote(f'{player["Long Name"]} FPL')
@@ -264,7 +305,7 @@ def display_player(player: S, player_gw_eps: DF, ctx: Context) -> Widget:
          f'<a href="https://www.google.co.uk/search?q={team_query}&ie=UTF-8" target="_blank">Search Google for {player["Team Name"]}</a>'
          '</div>'))
 
-    def display_player(player: S) -> Widget:
+    def display_player_pic(player: S) -> Widget:
         img_url = f'https://resources.premierleague.com/premierleague/photos/players/110x140/p{player["Profile Picture"].split(".")[0]}.png'
         return HTML(layout=Layout(padding='0 0 0 50px'), value=f'<img src="{img_url}" />')
 
@@ -281,7 +322,6 @@ def display_player(player: S, player_gw_eps: DF, ctx: Context) -> Widget:
                 .assign(**{'Season Game Week': lambda df: df['Season'] + ', GW ' + df['Game Week']}))
 
         x_axis = [data['Season'], data['Game Week']]
-        # x_axis = data['Season Game Week']
 
         eps_trace = Scatter(x=x_axis,
                             y=data['Expected Points'],
@@ -336,7 +376,7 @@ def display_player(player: S, player_gw_eps: DF, ctx: Context) -> Widget:
             ]
         )
         return VBox([HTML('<h3>Expected Points vs Actual Points</h3>'),
-                             FigureWidget([ftp_trace, ftpr_trace, eps_trace, fs_trace], layout=layout)])
+                     FigureWidget([ftp_trace, ftpr_trace, eps_trace, fs_trace], layout=layout)])
 
     if player is None:
         return None
@@ -345,8 +385,9 @@ def display_player(player: S, player_gw_eps: DF, ctx: Context) -> Widget:
 
     return VBox([
         display_header(player_formatted),
-        display_stats(player),
-        HBox([display_news(player_formatted),
-                      display_research(player), display_player(player)]),
+        HBox([
+            VBox([display_player_pic(player), display_research(player)], layout=Layout(flex='1 1 30%')),
+            VBox([display_stats(player)], layout=Layout(flex='1 1 70%'))],
+            layout=Layout(display='flex', flex_flow='row', align_items='stretch')),
         display_eps(player_gw_eps)
     ])
