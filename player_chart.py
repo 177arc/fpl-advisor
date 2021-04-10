@@ -148,7 +148,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                 [player_eps_chart.columns]
                 .astype(str))
 
-    def get_labels(player_eps_chart: DF) -> S:
+    def get_labels(player_eps_chart: DF, ctx: Context) -> S:
         player_eps_formatted = player_eps_chart.pipe(get_player_eps_formatted)
 
         return (player_eps_formatted['Name and Short Team']
@@ -161,7 +161,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
                 + np.where(player_eps_formatted['Field Position'] != 'GK', f'<br>Average Threat (Recent {ctx.player_fixtures_look_back} Fixtures): ' + player_eps_formatted['Avg Threat Recent Fixtures'],
                            f'<br>Avg Influence (Recent {ctx.player_fixtures_look_back} Fixtures): ' + player_eps_formatted['Avg Influence Recent Fixtures'])
                 + ', ICT: ' + player_eps_formatted['ICT Index']
-                + '<br>Next: ' + player_eps_formatted[f'Fixtures Next 8 GWs'].map(lambda v: break_text(v, 4))
+                + '<br>Next: ' + player_eps_formatted[f'Fixtures {ctx.def_next_gws}'].map(lambda v: break_text(v, 4))
                 + '<br>News: ' + player_eps_formatted['News And Date']
                 )
 
@@ -182,7 +182,7 @@ def player_strength_by_horizon(player_eps: DF, players_gw_eps: DF, horizon: str,
         player_eps_chart = player_eps_chart[lambda df: df['Name'].str.lower().str.contains(player.lower())]
 
     # Add labels
-    player_eps_chart = player_eps_chart.assign(**{'Label': lambda df: df.pipe(get_labels)})
+    player_eps_chart = player_eps_chart.assign(**{'Label': lambda df: df.pipe(get_labels, ctx)})
 
     traces = []
     if 'In Team?' in player_eps_chart.columns:

@@ -10,7 +10,7 @@ S = pd.Series
 
 
 def get_next_gw_counts(ctx: Context) -> Dict[str, int]:
-    return collections.OrderedDict([(get_next_gw_name(gw, ctx), gw) for gw in range(1, ctx.total_gws - ctx.next_gw + 1)])
+    return collections.OrderedDict([(get_next_gw_name(gw, ctx), gw) for gw in range(1, ctx.total_gws - ctx.next_gw + 2)])
 
 
 def get_next_gw_name(next_gw: int, ctx: Context) -> str:
